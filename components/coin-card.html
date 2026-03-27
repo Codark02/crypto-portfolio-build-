@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coin Card Example</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      padding: 40px;
+    }
+
+    /* Coin Card Styles */
+    .coin-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+
+    .coin-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      border-color: #22c55e;
+    }
+
+    .coin-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .coin-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f1f5f9;
+    }
+
+    .coin-info h3 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .coin-symbol {
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .price-section {
+      margin-bottom: 16px;
+    }
+
+    .price {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .change {
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .positive {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .negative {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .market-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      color: #64748b;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    .market-info span {
+      font-weight: 500;
+    }
+
+    .action-btn {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px;
+      background: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .action-btn:hover {
+      background: #16a34a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Example Usage of Coin Card -->
+  <h2 style="text-align:center; margin-bottom:40px; color:#0f172a;">Coin Card Component</h2>
+
+  <div style="display:flex; gap:30px; flex-wrap:wrap; justify-content:center;">
+
+    <!-- Bitcoin Card -->
+    <div class="coin-card">
+      <div class="coin-header">
+        <img src="https://via.placeholder.com/48/FF9900/FFFFFF?text=BTC" alt="Bitcoin" class="coin-logo">
+        <div class="coin-info">
+          <h3>Bitcoin</h3>
+          <div class="coin-symbol">BTC</div>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price">$68,420</div>
+        <div class="change positive">+2.85% (24h)</div>
+      </div>
+      <div class="market-info">
+        <span>Market Cap:</span>
+        <span>$1.35T</span>
+      </div>
+      <button class="action-btn">View Details</button>
+    </div>
+
+    <!-- Ethereum Card -->
+    <div class="coin-card">
+      <div class="coin-header">
+        <img src="https://via.placeholder.com/48/627EEA/FFFFFF?text=ETH" alt="Ethereum" class="coin-logo">
+        <div class="coin-info">
+          <h3>Ethereum</h3>
+          <div class="coin-symbol">ETH</div>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price">$2,845</div>
+        <div class="change positive">+4.12% (24h)</div>
+      </div>
+      <div class="market-info">
+        <span>Market Cap:</span>
+        <span>$342B</span>
+      </div>
+      <button class="action-btn">View Details</button>
+    </div>
+
+    <!-- Solana Card -->
+    <div class="coin-card">
+      <div class="coin-header">
+        <img src="https://via.placeholder.com/48/00FFA3/000000?text=SOL" alt="Solana" class="coin-logo">
+        <div class="coin-info">
+          <h3>Solana</h3>
+          <div class="coin-symbol">SOL</div>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price">$142.80</div>
+        <div class="change negative">-1.45% (24h)</div>
+      </div>
+      <div class="market-info">
+        <span>Market Cap:</span>
+        <span>$66.8B</span>
+      </div>
+      <button class="action-btn">View Details</button>
+    </div>
+
+  </div>
+
+</body>
+</html>

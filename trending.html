@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trending Coins - CryptoPortfolio</title>
+  <meta name="description" content="Discover the most trending cryptocurrencies right now. Live prices, 24h changes, and market data.">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navbar */
+    header {
+      background: #0f172a;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #22c55e;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      color: #22c55e;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #0f172a, #1e2937);
+      color: white;
+      padding: 90px 0 60px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      max-width: 700px;
+      margin: 0 auto;
+      opacity: 0.9;
+    }
+
+    /* Filters */
+    .filters {
+      background: white;
+      padding: 20px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    select {
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      font-size: 1rem;
+    }
+
+    /* Table */
+    .crypto-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .crypto-table th {
+      background: #0f172a;
+      color: white;
+      padding: 18px 15px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .crypto-table td {
+      padding: 18px 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .crypto-table tr:hover {
+      background: #f8fafc;
+    }
+
+    .coin-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .coin-cell img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+    }
+
+    .coin-name {
+      font-weight: 600;
+    }
+
+    .coin-symbol {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .price {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .change-positive {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .change-negative {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .market-cap {
+      font-weight: 500;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 40px 0;
+    }
+
+    .page-btn {
+      padding: 10px 16px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .page-btn.active {
+      background: #22c55e;
+      color: white;
+      border-color: #22c55e;
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: white;
+      padding: 70px 0 40px;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #94a3b8;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">CryptoPortfolio</div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="trending.html">Trending</a></li>
+          <li><a href="how-to-buy.html">How to Buy</a></li>
+          <li><a href="where-to-buy.html">Where to Buy</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Trending Cryptocurrencies</h1>
+      <p>Stay updated with the most active and talked-about coins in the market right now.</p>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="container">
+      <div class="filter-container">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search coins (e.g. Bitcoin, Solana)...">
+        </div>
+        <select id="timeframe">
+          <option value="24h">Last 24 Hours</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="30d">Last 30 Days</option>
+        </select>
+        <select id="sortBy">
+          <option value="market_cap">Sort by Market Cap</option>
+          <option value="price">Sort by Price</option>
+          <option value="change">Sort by 24h Change</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="container">
+    <table class="crypto-table" id="cryptoTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Coin</th>
+          <th>Price (USD)</th>
+          <th>24h Change</th>
+          <th>Market Cap</th>
+          <th>24h Volume</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Coin 1 -->
+        <tr>
+          <td>1</td>
+          <td>
+            <div class="coin-cell">
+              <img src="https://via.placeholder.com/36/FF9900/FFFFFF?text=BTC" alt="BTC">
+              <div>
+                <div class="coin-name">Bitcoin</div>
+                <div class="coin-symbol">BTC</div>
+              </div>
+            </div>
+          </td>
+          <td class="price">$68,420</td>
+          <td class="change-positive">+2.85%</td>
+          <td class="market-cap">$1.35T</td>
+          <td>$38.2B</td>
+          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
+        </tr>
+
+        <!-- Coin 2 -->
+        <tr>
+          <td>2</td>
+          <td>
+            <div class="coin-cell">
+              <img src="https://via.placeholder.com/36/627EEA/FFFFFF?text=ETH" alt="ETH">
+              <div>
+                <div class="coin-name">Ethereum</div>
+                <div class="coin-symbol">ETH</div>
+              </div>
+            </div>
+          </td>
+          <td class="price">$2,845</td>
+          <td class="change-positive">+4.12%</td>
+          <td class="market-cap">$342B</td>
+          <td>$22.1B</td>
+          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
+        </tr>
+
+        <!-- Coin 3 -->
+        <tr>
+          <td>3</td>
+          <td>
+            <div class="coin-cell">
+              <img src="https://via.placeholder.com/36/00FFA3/000000?text=SOL" alt="SOL">
+              <div>
+                <div class="coin-name">Solana</div>
+                <div class="coin-symbol">SOL</div>
+              </div>
+            </div>
+          </td>
+          <td class="price">$142.80</td>
+          <td class="change-negative">-1.45%</td>
+          <td class="market-cap">$66.8B</td>
+          <td>$4.9B</td>
+          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
+        </tr>
+
+        <!-- Add more rows as needed -->
+        <tr>
+          <td>4</td>
+          <td>
+            <div class="coin-cell">
+              <img src="https://via.placeholder.com/36/F7931A/FFFFFF?text=BNB" alt="BNB">
+              <div>
+                <div class="coin-name">BNB</div>
+                <div class="coin-symbol">BNB</div>
+              </div>
+            </div>
+          </td>
+          <td class="price">$612.45</td>
+          <td class="change-positive">+1.78%</td>
+          <td class="market-cap">$89.4B</td>
+          <td>$2.1B</td>
+          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">4</button>
+      <button class="page-btn">Next →</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="font-size: 1.5rem; margin-bottom: 1rem;">CryptoPortfolio</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="trending.html">Trending Coins</a>
+        <a href="how-to-buy.html">How to Buy</a>
+        <a href="where-to-buy.html">Where to Buy</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="about.html">About Me</a>
+      </div>
+      <p style="margin-top: 2.5rem; color: #64748b;">
+        &copy; 2026 Franklin • Port Harcourt, Rivers State, Nigeria
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Simple search functionality
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('#cryptoTable tbody tr');
+
+    searchInput.addEventListener('keyup', () => {
+      const searchTerm = searchInput.value.toLowerCase();
+
+      tableRows.forEach(row => {
+        const coinName = row.querySelector('.coin-name').textContent.toLowerCase();
+        const coinSymbol = row.querySelector('.coin-symbol').textContent.toLowerCase();
+
+        if (coinName.includes(searchTerm) || coinSymbol.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

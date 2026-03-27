@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoPortfolio | Build Your Crypto Future</title>
+  <meta name="description" content="Your trusted guide to cryptocurrency in Nigeria. Track trending coins, learn how to buy safely, and build a profitable portfolio.">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navbar */
+    header {
+      background: #0f172a;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #22c55e;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      color: #22c55e;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+      color: white;
+      padding: 120px 0 100px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 1.4rem;
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.9;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #22c55e;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #16a34a;
+      transform: translateY(-3px);
+    }
+
+    .btn-outline {
+      border: 2px solid #22c55e;
+      color: white;
+    }
+
+    .btn-outline:hover {
+      background: #22c55e;
+      color: white;
+    }
+
+    /* Market Snapshot */
+    .market-section {
+      padding: 60px 0;
+      background: white;
+    }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      text-align: center;
+    }
+
+    .market-card {
+      padding: 2rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .market-card h3 {
+      color: #64748b;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .market-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .positive { color: #22c55e; }
+    .negative { color: #ef4444; }
+
+    /* Trending Preview */
+    .trending-section {
+      padding: 80px 0;
+      background: #f8fafc;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      color: #0f172a;
+    }
+
+    .view-all {
+      color: #22c55e;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .coins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .coin-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      transition: transform 0.3s;
+    }
+
+    .coin-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .coin-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .coin-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .coin-name {
+      font-weight: 600;
+    }
+
+    .coin-symbol {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .price {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .change-positive {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .change-negative {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    /* Why Us */
+    .why-section {
+      padding: 80px 0;
+      background: white;
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .why-card {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .why-card h3 {
+      margin: 1.5rem 0 1rem;
+      color: #0f172a;
+    }
+
+    /* CTA */
+    .cta-section {
+      background: #0f172a;
+      color: white;
+      padding: 90px 0;
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-size: 2.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: white;
+      padding: 70px 0 40px;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #94a3b8;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">CryptoPortfolio</div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="trending.html">Trending</a></li>
+          <li><a href="how-to-buy.html">How to Buy</a></li>
+          <li><a href="where-to-buy.html">Where to Buy</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Build Your Crypto Portfolio<br>With Confidence</h1>
+      <p>Simple guides, trending coins, and practical knowledge for beginners in Nigeria and beyond.</p>
+      
+      <div class="hero-buttons">
+        <a href="trending.html" class="btn btn-primary">Explore Trending Coins</a>
+        <a href="how-to-buy.html" class="btn btn-outline">Learn How to Buy Crypto</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Market Snapshot -->
+  <section class="market-section">
+    <div class="container">
+      <h2 class="section-title" style="text-align:center; margin-bottom: 3rem;">Market Snapshot</h2>
+      <div class="market-grid">
+        <div class="market-card">
+          <h3>Total Market Cap</h3>
+          <div class="value">$2.48T</div>
+          <span class="positive">↑ 3.2%</span>
+        </div>
+        <div class="market-card">
+          <h3>Bitcoin Dominance</h3>
+          <div class="value">52.8%</div>
+          <span class="negative">↓ 0.4%</span>
+        </div>
+        <div class="market-card">
+          <h3>24h Volume</h3>
+          <div class="value">$98.7B</div>
+          <span class="positive">↑ 12.5%</span>
+        </div>
+        <div class="market-card">
+          <h3>ETH Price</h3>
+          <div class="value">$2,845</div>
+          <span class="positive">↑ 4.1%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending Coins Preview -->
+  <section class="trending-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Trending Coins Right Now</h2>
+        <a href="trending.html" class="view-all">View All →</a>
+      </div>
+
+      <div class="coins-grid">
+        <!-- Coin 1 -->
+        <div class="coin-card">
+          <div class="coin-header">
+            <img src="https://via.placeholder.com/40" alt="BTC">
+            <div>
+              <div class="coin-name">Bitcoin</div>
+              <div class="coin-symbol">BTC</div>
+            </div>
+          </div>
+          <div class="price">$68,420</div>
+          <div class="change-positive">+2.8% (24h)</div>
+        </div>
+
+        <!-- Coin 2 -->
+        <div class="coin-card">
+          <div class="coin-header">
+            <img src="https://via.placeholder.com/40" alt="ETH">
+            <div>
+              <div class="coin-name">Ethereum</div>
+              <div class="coin-symbol">ETH</div>
+            </div>
+          </div>
+          <div class="price">$2,845</div>
+          <div class="change-positive">+4.1% (24h)</div>
+        </div>
+
+        <!-- Coin 3 -->
+        <div class="coin-card">
+          <div class="coin-header">
+            <img src="https://via.placeholder.com/40" alt="SOL">
+            <div>
+              <div class="coin-name">Solana</div>
+              <div class="coin-symbol">SOL</div>
+            </div>
+          </div>
+          <div class="price">$142.50</div>
+          <div class="change-negative">-1.2% (24h)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="why-section">
+    <div class="container">
+      <h2 class="section-title" style="text-align:center; margin-bottom: 3rem;">Why Choose CryptoPortfolio</h2>
+      
+      <div class="why-grid">
+        <div class="why-card">
+          <h3>📚 Beginner Friendly</h3>
+          <p>Clear, simple explanations without complicated jargon.</p>
+        </div>
+        <div class="why-card">
+          <h3>🇳🇬 Nigeria Focused</h3>
+          <p>Tips tailored for Nigerians including Naira deposits and local exchanges.</p>
+        </div>
+        <div class="why-card">
+          <h3>🔒 Safety First</h3>
+          <p>Honest advice on security, wallets, and avoiding scams.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to Start Your Crypto Journey?</h2>
+      <p style="font-size: 1.3rem; max-width: 600px; margin: 0 auto 2rem;">
+        Join thousands of Nigerians learning and growing their crypto portfolio the right way.
+      </p>
+      <a href="how-to-buy.html" class="btn btn-primary" style="font-size: 1.3rem; padding: 16px 40px;">Learn How to Buy Crypto Now</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="font-size: 1.6rem; margin-bottom: 1rem;">CryptoPortfolio</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="trending.html">Trending Coins</a>
+        <a href="how-to-buy.html">How to Buy</a>
+        <a href="where-to-buy.html">Where to Buy</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="about.html">About Me</a>
+      </div>
+      <p style="margin-top: 2.5rem; color: #64748b;">
+        &copy; 2026 Franklin • Port Harcourt, Rivers State, Nigeria
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

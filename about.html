@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Me - Franklin | Crypto Portfolio</title>
+  <meta name="description" content="Meet Franklin, a passionate crypto enthusiast from Port Harcourt, Nigeria. Learn about my mission to make crypto investing simple and accessible.">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.7;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navbar */
+    header {
+      background: #0f172a;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #22c55e;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      color: #22c55e;
+    }
+
+    /* Hero / Profile Section */
+    .profile-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, #0f172a, #1e2937);
+      color: white;
+    }
+
+    .profile-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .profile-image {
+      text-align: center;
+    }
+
+    .profile-image img {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 6px solid #22c55e;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .profile-text h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .profile-text h2 {
+      font-size: 1.4rem;
+      color: #22c55e;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-text p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    /* Mission Section */
+    .mission-section {
+      padding: 80px 0;
+      background: white;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      color: #0f172a;
+    }
+
+    .mission-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 1.25rem;
+      color: #475569;
+    }
+
+    /* About Details */
+    .details-section {
+      padding: 80px 0;
+      background: #f8fafc;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 3rem;
+    }
+
+    .detail-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .detail-card h3 {
+      color: #22c55e;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+
+    /* Call to Action */
+    .cta-section {
+      padding: 80px 0;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: #22c55e;
+      color: white;
+      padding: 14px 40px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      transition: all 0.3s;
+    }
+
+    .cta-btn:hover {
+      background: #16a34a;
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: white;
+      padding: 60px 0 30px;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #94a3b8;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">CryptoPortfolio</div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="trending.html">Trending</a></li>
+          <li><a href="how-to-buy.html">How to Buy</a></li>
+          <li><a href="where-to-buy.html">Where to Buy</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Profile Hero -->
+  <section class="profile-section">
+    <div class="container">
+      <div class="profile-content">
+        <div class="profile-image">
+          <!-- Replace with your actual photo later -->
+          <img src="https://via.placeholder.com/280" alt="Franklin - Crypto Enthusiast">
+        </div>
+        <div class="profile-text">
+          <h1>Hi, I'm Franklin</h1>
+          <h2>Crypto Enthusiast & Portfolio Builder</h2>
+          <p>Based in Port Harcourt, Rivers State, Nigeria.</p>
+          <p>I'm passionate about making cryptocurrency investing simple, safe, and accessible for Nigerians and beginners across Africa.</p>
+          <p>Through this platform, I share honest guides, trending coins, and practical knowledge to help you build a strong crypto portfolio with confidence.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission-section">
+    <div class="container">
+      <h2 class="section-title">My Mission</h2>
+      <div class="mission-content">
+        <p>
+          In a world where crypto can feel complicated and risky, my goal is to break down the barriers. 
+          I believe everyone — regardless of background or location — should have the opportunity to participate 
+          in the digital asset revolution safely and profitably.
+        </p>
+        <p style="margin-top: 1.5rem;">
+          From Port Harcourt to the rest of Nigeria and beyond, I'm committed to providing clear, 
+          practical, and trustworthy information so you can make informed decisions about your financial future.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Details Section -->
+  <section class="details-section">
+    <div class="container">
+      <h2 class="section-title">More About Me</h2>
+      
+      <div class="details-grid">
+        <div class="detail-card">
+          <h3>📍 Location</h3>
+          <p>Port Harcourt, Rivers State, Nigeria</p>
+        </div>
+        
+        <div class="detail-card">
+          <h3>🚀 Journey</h3>
+          <p>Started my crypto journey in 2021. Survived the bear market and learned from both wins and losses.</p>
+        </div>
+        
+        <div class="detail-card">
+          <h3>💡 Focus</h3>
+          <p>Helping beginners avoid common mistakes and build sustainable crypto portfolios.</p>
+        </div>
+        
+        <div class="detail-card">
+          <h3>🌍 Vision</h3>
+          <p>To become a trusted voice for crypto education in Nigeria and across Africa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Let's Build Your Crypto Future Together</h2>
+      <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem;">
+        Whether you're just starting or looking to improve your strategy, I'm here to help.
+      </p>
+      <a href="how-to-buy.html" class="cta-btn">Start Learning How to Buy Crypto</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="font-size: 1.5rem; margin-bottom: 1rem;">CryptoPortfolio</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="trending.html">Trending Coins</a>
+        <a href="how-to-buy.html">How to Buy</a>
+        <a href="where-to-buy.html">Where to Buy</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="about.html">About Me</a>
+      </div>
+      <p style="margin-top: 2rem; color: #64748b;">
+        &copy; 2026 Franklin | Port Harcourt, Nigeria. Built with passion for the crypto space.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
