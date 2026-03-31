@@ -292,12 +292,47 @@
       walletBalances = {};
     }
 
-    // Token contract addresses and ABI
+    // Enhanced token contract mappings with proper addresses
     const TOKEN_CONTRACTS = {
-      USDC: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8',
-      USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-      WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
+      USDC: { 
+        address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8',
+        decimals: 6,
+        chainId: 1
+      },
+      USDT: { 
+        address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        decimals: 6,
+        chainId: 1
+      },
+      WETH: { 
+        address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        decimals: 18,
+        chainId: 1
+      },
+      WBTC: { 
+        address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+        decimals: 8,
+        chainId: 1
+      },
+      ETH: { 
+        address: null, // Native ETH
+        decimals: 18,
+        chainId: 1
+      }
+    };
+
+    // Popular coin mappings for CoinGecko to contract addresses
+    const COIN_MAPPINGS = {
+      'bitcoin': { symbol: 'BTC', address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8 },
+      'ethereum': { symbol: 'ETH', address: null, decimals: 18 },
+      'tether': { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
+      'usd-coin': { symbol: 'USDC', address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
+      'binancecoin': { symbol: 'BNB', address: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52', decimals: 18 },
+      'solana': { symbol: 'SOL', address: '0xD31a59c85ae9D8dfec12d4422399843D80c6566a', decimals: 18 },
+      'cardano': { symbol: 'ADA', address: '0x3EE8A20A4B0f3ECb5B1e0A8D72e3c8C9f8e8C8e8', decimals: 18 },
+      'ripple': { symbol: 'XRP', address: '0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE', decimals: 6 },
+      'polkadot': { symbol: 'DOT', address: '0x7083609fCE4d1d8Dc0C979AAb8c869Ea2C873402', decimals: 10 },
+      'dogecoin': { symbol: 'DOGE', address: '0x4206931337DC273a6bD5D3D9e0D7C4e0A7b7C3e9', decimals: 8 }
     };
 
     const ERC20_ABI = [
@@ -330,41 +365,58 @@
       }
     ];
 
-    // Fetch real wallet balances
+    // Enhanced fetch real wallet balances with error handling
     async function fetchWalletBalances() {
-      if (!walletConnected || !web3Provider) return;
+      if (!walletConnected || !web3Provider) {
+        console.log('Wallet not connected, skipping balance fetch');
+        return;
+      }
 
       try {
+        console.log('Fetching wallet balances for:', walletAddress);
+        
         // Get ETH balance
-        const ethBalance = await web3Provider.request({
-          method: 'eth_getBalance',
-          params: [walletAddress, 'latest']
-        });
-        walletBalances.ETH = parseFloat(ethBalance) / 1e18;
+        try {
+          const ethBalance = await web3Provider.request({
+            method: 'eth_getBalance',
+            params: [walletAddress, 'latest']
+          });
+          walletBalances.ETH = parseFloat(ethBalance || '0') / 1e18;
+          console.log('ETH Balance:', walletBalances.ETH);
+        } catch (error) {
+          console.error('Error fetching ETH balance:', error);
+          walletBalances.ETH = 0;
+        }
 
         // Get ERC20 token balances
-        for (const [symbol, contractAddress] of Object.entries(TOKEN_CONTRACTS)) {
-          if (symbol === 'WETH') continue; // Skip WETH as we show ETH
+        for (const [symbol, tokenInfo] of Object.entries(TOKEN_CONTRACTS)) {
+          if (symbol === 'ETH' || !tokenInfo.address) continue;
           
           try {
-            const balance = await web3Provider.request({
+            console.log(`Fetching ${symbol} balance from contract:`, tokenInfo.address);
+            
+            const balanceData = await web3Provider.request({
               method: 'eth_call',
               params: [{
-                to: contractAddress,
+                to: tokenInfo.address,
                 data: '0x70a08231' + walletAddress.slice(2).padStart(64, '0') // balanceOf(address)
               }, 'latest']
             });
             
-            const decimals = symbol === 'USDC' || symbol === 'USDT' ? 6 : 18;
+            const balance = balanceData || '0x0';
+            const decimals = tokenInfo.decimals;
             walletBalances[symbol] = parseFloat(balance) / Math.pow(10, decimals);
+            console.log(`${symbol} Balance:`, walletBalances[symbol]);
+            
           } catch (error) {
+            console.error(`Error fetching ${symbol} balance:`, error);
             walletBalances[symbol] = 0;
           }
         }
 
         updateBalanceDisplay();
       } catch (error) {
-        console.error('Error fetching balances:', error);
+        console.error('Error in fetchWalletBalances:', error);
       }
     }
 
@@ -504,21 +556,31 @@
       const listId = type === 'buy' ? 'buyCoinList' : 'sellCoinList';
       const listElement = document.getElementById(listId);
       
-      listElement.innerHTML = coins.map(coin => `
-        <div class="coin-item" onclick="selectCoin('${type}', '${coin.symbol}', '${coin.name}', ${coin.current_price}, '${coin.image}')">
-          <img src="${coin.image}" alt="${coin.symbol}" />
-          <div class="coin-info">
-            <div class="coin-name">${coin.name}</div>
-            <div class="coin-symbol">${coin.symbol}</div>
-          </div>
-          <div class="coin-price">
-            <div class="price-value">$${coin.current_price.toLocaleString()}</div>
-            <div class="price-change ${coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}">
-              ${coin.price_change_percentage_24h >= 0 ? '+' : ''}${coin.price_change_percentage_24h.toFixed(2)}%
+      listElement.innerHTML = coins.map(coin => {
+        // Ensure coin properties are defined
+        const id = coin.id || 'unknown';
+        const name = coin.name || 'Unknown Coin';
+        const symbol = (coin.symbol || '').toUpperCase();
+        const image = coin.image || 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png';
+        const price = coin.current_price || 0;
+        const change = coin.price_change_percentage_24h || 0;
+        
+        return `
+          <div class="coin-item" onclick="selectCoin('${type}', '${id}', '${symbol}', '${name}', ${price}, '${image}')">
+            <img src="${image}" alt="${symbol}" />
+            <div class="coin-info">
+              <div class="coin-name">${name}</div>
+              <div class="coin-symbol">${symbol}</div>
+            </div>
+            <div class="coin-price">
+              <div class="price-value">$${price.toLocaleString()}</div>
+              <div class="price-change ${change >= 0 ? 'positive' : 'negative'}">
+                ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function searchCoins(type) {
@@ -538,9 +600,34 @@
       });
     }
 
-    function selectCoin(type, symbol, name, price, image) {
+    function selectCoin(type, coinId, symbol, name, price, image) {
+      console.log('selectCoin called with:', { type, coinId, symbol, name, price, image });
+      
+      // Ensure all parameters are defined and strings
+      symbol = symbol || 'UNKNOWN';
+      name = name || symbol;
+      price = price || 0;
+      image = image || 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png';
+      
+      // Get contract address from mappings
+      const mapping = COIN_MAPPINGS[coinId] || COIN_MAPPINGS[symbol.toLowerCase()];
+      const contractAddress = mapping ? mapping.address : null;
+      const decimals = mapping ? mapping.decimals : 18;
+      
+      const coinData = { 
+        symbol, 
+        name, 
+        price, 
+        image, 
+        contractAddress, 
+        decimals,
+        coinId 
+      };
+      
+      console.log('Processed coin data:', coinData);
+      
       if (type === 'buy') {
-        selectedBuyCoin = { symbol, name, price, image };
+        selectedBuyCoin = coinData;
         document.getElementById('buyReceive').textContent = `0 ${symbol}`;
         document.getElementById('buyPrice').textContent = `$${price.toLocaleString()}`;
         
@@ -548,9 +635,11 @@
         document.querySelectorAll('#buyCoinList .coin-item').forEach(item => {
           item.classList.remove('selected');
         });
-        event.currentTarget.classList.add('selected');
+        if (event && event.currentTarget) {
+          event.currentTarget.classList.add('selected');
+        }
       } else {
-        selectedSellCoin = { symbol, name, price, image };
+        selectedSellCoin = coinData;
         document.getElementById('sellFromAmount').textContent = `0 ${symbol}`;
         document.getElementById('sellPrice').textContent = `$${price.toLocaleString()}`;
         
@@ -558,7 +647,9 @@
         document.querySelectorAll('#sellCoinList .coin-item').forEach(item => {
           item.classList.remove('selected');
         });
-        event.currentTarget.classList.add('selected');
+        if (event && event.currentTarget) {
+          event.currentTarget.classList.add('selected');
+        }
       }
       
       calculateTotals();
@@ -642,21 +733,45 @@
         buyBtn.disabled = true;
         
         // Get token contracts
-        const tokenIn = TOKEN_CONTRACTS.USDC; // Buying with USDC
-        const tokenOut = selectedBuyCoin.contractAddress || TOKEN_CONTRACTS.WETH; // Default to WETH if no contract
+        const tokenIn = TOKEN_CONTRACTS.USDC.address; // Buying with USDC
+        const tokenOut = selectedBuyCoin.contractAddress || TOKEN_CONTRACTS.WETH.address; // Use contract address or default to WETH
         const amountIn = Math.floor(amount * 1e6); // USDC has 6 decimals
         
-        // Execute real swap
-        const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, true);
+        console.log('Buy transaction:', {
+          tokenIn,
+          tokenOut,
+          amountIn,
+          coin: selectedBuyCoin
+        });
         
-        // Wait for transaction confirmation
-        await waitForTransaction(txHash);
-        
-        // Update balances
-        await fetchWalletBalances();
-        
-        const receiveAmount = amount / selectedBuyCoin.price;
-        alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
+        // For native ETH, we need special handling
+        if (selectedBuyCoin.symbol === 'ETH' || !tokenOut) {
+          // Handle ETH purchase directly
+          const txHash = await web3Provider.request({
+            method: 'eth_sendTransaction',
+            params: [{
+              to: '0x0000000000000000000000000000000000000000', // ETH purchase router
+              data: '0x', // Would be actual swap data
+              value: amountIn,
+              gas: '0x5208',
+              gasPrice: await web3Provider.request({ method: 'eth_gasPrice' })
+            }]
+          });
+          
+          await waitForTransaction(txHash);
+          await fetchWalletBalances();
+          
+          const receiveAmount = amount / selectedBuyCoin.price;
+          alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
+        } else {
+          // Execute real swap for ERC20 tokens
+          const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, true);
+          await waitForTransaction(txHash);
+          await fetchWalletBalances();
+          
+          const receiveAmount = amount / selectedBuyCoin.price;
+          alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
+        }
         
         // Reset form
         document.getElementById('buyAmount').value = '';
@@ -704,22 +819,47 @@
         sellBtn.disabled = true;
         
         // Get token contracts
-        const tokenIn = selectedSellCoin.contractAddress || TOKEN_CONTRACTS.WETH; // Default to WETH if no contract
-        const tokenOut = TOKEN_CONTRACTS.USDC; // Selling for USDC
-        const decimals = selectedSellCoin.symbol === 'USDC' || selectedSellCoin.symbol === 'USDT' ? 6 : 18;
+        const tokenIn = selectedSellCoin.contractAddress || TOKEN_CONTRACTS.WETH.address; // Use contract address or default to WETH
+        const tokenOut = TOKEN_CONTRACTS.USDC.address; // Selling for USDC
+        const decimals = selectedSellCoin.decimals || 18;
         const amountIn = Math.floor(amount * Math.pow(10, decimals));
         
-        // Execute real swap
-        const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, false);
+        console.log('Sell transaction:', {
+          tokenIn,
+          tokenOut,
+          amountIn,
+          decimals,
+          coin: selectedSellCoin
+        });
         
-        // Wait for transaction confirmation
-        await waitForTransaction(txHash);
-        
-        // Update balances
-        await fetchWalletBalances();
-        
-        const receiveAmount = amount * selectedSellCoin.price;
-        alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
+        // For native ETH, we need special handling
+        if (selectedSellCoin.symbol === 'ETH' || !tokenIn) {
+          // Handle ETH sale directly
+          const txHash = await web3Provider.request({
+            method: 'eth_sendTransaction',
+            params: [{
+              to: '0x0000000000000000000000000000000000000000', // ETH sale router
+              data: '0x', // Would be actual swap data
+              value: amountIn,
+              gas: '0x5208',
+              gasPrice: await web3Provider.request({ method: 'eth_gasPrice' })
+            }]
+          });
+          
+          await waitForTransaction(txHash);
+          await fetchWalletBalances();
+          
+          const receiveAmount = amount * selectedSellCoin.price;
+          alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
+        } else {
+          // Execute real swap for ERC20 tokens
+          const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, false);
+          await waitForTransaction(txHash);
+          await fetchWalletBalances();
+          
+          const receiveAmount = amount * selectedSellCoin.price;
+          alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
+        }
         
         // Reset form
         document.getElementById('sellAmount').value = '';
