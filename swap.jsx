@@ -744,6 +744,30 @@ export default function CryptoSwap() {
     }
   }, [walletConnected]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.coin-selector')) {
+        setShowBuyList(false);
+        setShowSellList(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Handle wallet option selection
+  const handleWalletOption = async (walletType) => {
+    try {
+      console.log(`Connecting to ${walletType}...`);
+      await connectWallet();
+    } catch (error) {
+      console.error('Wallet connection failed:', error);
+      setError(`Failed to connect to ${walletType}: ${error.message}`);
+    }
+  };
+
   return (
     <div style={{ maxWidth: '1200px', margin: '20px auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>Crypto Swap</h1>
@@ -814,26 +838,129 @@ export default function CryptoSwap() {
           <p style={{ marginBottom: '20px', color: '#666' }}>
             Connect to <strong>{NETWORKS[selectedNetwork].chainName}</strong> network
           </p>
-          <button
-            onClick={connectWallet}
-            disabled={loading}
-            style={{
-              padding: '15px 40px',
-              fontSize: '16px',
-              backgroundColor: '#0070f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              transition: 'all 0.3s ease',
-              fontWeight: 'bold'
-            }}
-          >
-            {loading ? 'Connecting...' : `Connect to ${NETWORKS[selectedNetwork].chainName}`}
-          </button>
+          
+          {/* Wallet Options Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', marginBottom: '25px' }}>
+            <button
+              onClick={() => handleWalletOption('metamask')}
+              disabled={loading}
+              style={{
+                padding: '15px 20px',
+                fontSize: '14px',
+                backgroundColor: '#f6851b',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all 0.3s ease',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              🦊 MetaMask
+            </button>
+            
+            <button
+              onClick={() => handleWalletOption('rabby')}
+              disabled={loading}
+              style={{
+                padding: '15px 20px',
+                fontSize: '14px',
+                backgroundColor: '#6b46c1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all 0.3s ease',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              🐰 Rabby
+            </button>
+            
+            <button
+              onClick={() => handleWalletOption('okx')}
+              disabled={loading}
+              style={{
+                padding: '15px 20px',
+                fontSize: '14px',
+                backgroundColor: '#1e1e1e',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all 0.3s ease',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              ⚫ OKX Wallet
+            </button>
+            
+            <button
+              onClick={() => handleWalletOption('phantom')}
+              disabled={loading}
+              style={{
+                padding: '15px 20px',
+                fontSize: '14px',
+                backgroundColor: '#ab9ff2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all 0.3s ease',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              👻 Phantom
+            </button>
+          </div>
+          
+          {/* Alternative Connection Method */}
+          <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+            <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#666' }}>
+              Or connect directly:
+            </p>
+            <button
+              onClick={connectWallet}
+              disabled={loading}
+              style={{
+                padding: '12px 30px',
+                fontSize: '14px',
+                backgroundColor: '#0070f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all 0.3s ease',
+                fontWeight: 'bold'
+              }}
+            >
+              {loading ? 'Connecting...' : `Connect to ${NETWORKS[selectedNetwork].chainName}`}
+            </button>
+          </div>
+          
           <p style={{ marginTop: '15px', fontSize: '12px', color: '#999' }}>
-            Make sure MetaMask is installed and unlocked
+            Make sure your wallet is installed and unlocked
           </p>
         </div>
       ) : (
@@ -877,7 +1004,7 @@ export default function CryptoSwap() {
               <h3 style={{ color: '#2e7d32', marginBottom: '20px', textAlign: 'center' }}>🟢 Buy Coins</h3>
               
               {/* Coin Selection */}
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '20px' }} className="coin-selector">
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#2e7d32' }}>Select Coin to Buy:</label>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -1018,7 +1145,7 @@ export default function CryptoSwap() {
               </div>
 
               {/* Coin Selection */}
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '20px' }} className="coin-selector">
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#c62828' }}>Select Coin to Sell:</label>
                 <div style={{ position: 'relative' }}>
                   <input
