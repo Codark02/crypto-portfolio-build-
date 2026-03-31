@@ -4,425 +4,297 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trending Coins - CryptoPortfolio</title>
-  <meta name="description" content="Discover the most trending cryptocurrencies right now. Live prices, 24h changes, and market data.">
-
+  <meta name="description" content="Real-time prices for thousands of cryptocurrencies.">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f8f9fa;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Navbar */
-    header {
-      background: #0f172a;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.2rem 0;
-    }
-
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #22c55e;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .nav-links a:hover {
-      color: #22c55e;
-    }
-
-    /* Hero */
-    .hero {
-      background: linear-gradient(135deg, #0f172a, #1e2937);
-      color: white;
-      padding: 90px 0 60px;
-      text-align: center;
-    }
-
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .hero p {
-      font-size: 1.25rem;
-      max-width: 700px;
-      margin: 0 auto;
-      opacity: 0.9;
-    }
-
-    /* Filters */
-    .filters {
-      background: white;
-      padding: 20px 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-
-    .filter-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .search-box {
-      flex: 1;
-      min-width: 280px;
-    }
-
-    .search-box input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
-    select {
-      padding: 12px 16px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      background: white;
-      font-size: 1rem;
-    }
-
-    /* Table */
-    .crypto-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-
-    .crypto-table th {
-      background: #0f172a;
-      color: white;
-      padding: 18px 15px;
-      text-align: left;
-      font-weight: 500;
-    }
-
-    .crypto-table td {
-      padding: 18px 15px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .crypto-table tr:hover {
-      background: #f8fafc;
-    }
-
-    .coin-cell {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .coin-cell img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-    }
-
-    .coin-name {
-      font-weight: 600;
-    }
-
-    .coin-symbol {
-      color: #64748b;
-      font-size: 0.95rem;
-    }
-
-    .price {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .change-positive {
-      color: #22c55e;
-      font-weight: 600;
-    }
-
-    .change-negative {
-      color: #ef4444;
-      font-weight: 600;
-    }
-
-    .market-cap {
-      font-weight: 500;
-    }
-
-    /* Pagination */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 40px 0;
-    }
-
-    .page-btn {
-      padding: 10px 16px;
-      border: 1px solid #cbd5e1;
-      background: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .page-btn.active {
-      background: #22c55e;
-      color: white;
-      border-color: #22c55e;
-    }
-
-    /* Footer */
-    footer {
-      background: #0f172a;
-      color: white;
-      padding: 70px 0 40px;
-      text-align: center;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin: 2.5rem 0;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: #94a3b8;
-      text-decoration: none;
-    }
-
-    .footer-links a:hover {
-      color: #22c55e;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f8fafc; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+    header { background: #0f172a; color: white; position: sticky; top: 0; z-index: 1000; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; gap: 12px; }
+    .logo { font-size: 1.5rem; font-weight: 700; color: #22c55e; text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-links { display: flex; gap: 1.1rem; list-style: none; }
+    .nav-links a { color: white; text-decoration: none; font-size: 0.95rem; }
+    .wallet-btn { border: none; border-radius: 999px; padding: 9px 14px; background: #22c55e; color: white; font-weight: 700; cursor: pointer; }
+    .wallet-btn.connected { background: #1d4ed8; }
+    .mobile-menu-btn { display: none; border: none; background: none; color: white; font-size: 1.6rem; cursor: pointer; }
+    .hero { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 60px 0; text-align: center; }
+    .hero h1 { font-size: 2.4rem; margin-bottom: 8px; }
+    .hero p { color: #cbd5e1; }
+    .filters { background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 62px; z-index: 900; }
+    .filter-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; padding: 12px 0; }
+    input, select, button { font: inherit; }
+    #searchInput, #sortBy, #coinLimit { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; }
+    #searchBtn, #refreshBtn { padding: 10px 14px; border-radius: 8px; border: none; background: #0f172a; color: white; cursor: pointer; }
+    .table-wrap { overflow: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; border-radius: 12px; background: white; box-shadow: 0 4px 20px rgba(2,6,23,0.08); }
+    table { border-collapse: collapse; width: 100%; min-width: 980px; }
+    th { background: #0f172a; color: white; text-align: left; padding: 12px; position: sticky; top: 0; }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+    tr:hover { background: #f8fafc; }
+    .coin-cell { display: flex; align-items: center; gap: 10px; }
+    .coin-cell img { width: 30px; height: 30px; border-radius: 50%; }
+    .positive { color: #16a34a; font-weight: 700; }
+    .negative { color: #ef4444; font-weight: 700; }
+    .meta-row { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 10px 0 16px; color: #475569; }
+    .pagination { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 18px 0 36px; }
+    .page-btn { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; }
+    .page-btn.active { background: #22c55e; color: white; border-color: #22c55e; }
+    footer { background: #0f172a; color: white; text-align: center; padding: 44px 0 24px; margin-top: 30px; }
+    @media (max-width: 920px) {
+      .mobile-menu-btn { display: block; }
+      .nav-links { position: fixed; top: 62px; left: -100%; width: 100%; height: calc(100vh - 62px); background: #0f172a; flex-direction: column; align-items: center; padding-top: 38px; transition: left 0.25s ease; }
+      .nav-links.active { left: 0; }
+      .filter-row { grid-template-columns: 1fr 1fr; }
+      #searchBtn, #refreshBtn { width: 100%; }
+      .hero h1 { font-size: 1.9rem; }
+      .filters { top: 60px; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Navbar -->
   <header>
     <div class="container">
       <nav>
-        <div class="logo">CryptoPortfolio</div>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="trending.html">Trending</a></li>
-          <li><a href="how-to-buy.html">How to Buy</a></li>
-          <li><a href="where-to-buy.html">Where to Buy</a></li>
-          <li><a href="about.html">About</a></li>
-        </ul>
+        <a class="logo" href="index.html">CryptoPortfolio</a>
+        <div class="nav-right">
+          <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="swap.html">Swap</a></li>
+            <li><a href="trending.html">Trending</a></li>
+            <li><a href="how-to-buy.html">How to Buy</a></li>
+            <li><a href="where-to-buy.html">Where to Buy</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+          <button id="navConnectBtn" class="wallet-btn">Connect Wallet</button>
+          <button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
+        </div>
       </nav>
     </div>
   </header>
 
-  <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <h1>Trending Cryptocurrencies</h1>
-      <p>Stay updated with the most active and talked-about coins in the market right now.</p>
+      <h1>Thousands of Coins, Real-Time</h1>
+      <p>Search and monitor live price changes across the market.</p>
     </div>
   </section>
 
-  <!-- Filters -->
   <div class="filters">
     <div class="container">
-      <div class="filter-container">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Search coins (e.g. Bitcoin, Solana)...">
-        </div>
-        <select id="timeframe">
-          <option value="24h">Last 24 Hours</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-        </select>
+      <div class="filter-row">
+        <input id="searchInput" placeholder="Search coin name or symbol">
         <select id="sortBy">
-          <option value="market_cap">Sort by Market Cap</option>
-          <option value="price">Sort by Price</option>
-          <option value="change">Sort by 24h Change</option>
+          <option value="market_cap">Sort: Market Cap</option>
+          <option value="price">Sort: Price</option>
+          <option value="change">Sort: 24h Change</option>
         </select>
+        <select id="coinLimit">
+          <option value="500">500 Coins</option>
+          <option value="1000" selected>1000 Coins</option>
+          <option value="2000">2000 Coins</option>
+        </select>
+        <button id="refreshBtn">Refresh Live Prices</button>
       </div>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="container">
-    <table class="crypto-table" id="cryptoTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Coin</th>
-          <th>Price (USD)</th>
-          <th>24h Change</th>
-          <th>Market Cap</th>
-          <th>24h Volume</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Coin 1 -->
-        <tr>
-          <td>1</td>
-          <td>
-            <div class="coin-cell">
-              <img src="https://via.placeholder.com/36/FF9900/FFFFFF?text=BTC" alt="BTC">
-              <div>
-                <div class="coin-name">Bitcoin</div>
-                <div class="coin-symbol">BTC</div>
-              </div>
-            </div>
-          </td>
-          <td class="price">$68,420</td>
-          <td class="change-positive">+2.85%</td>
-          <td class="market-cap">$1.35T</td>
-          <td>$38.2B</td>
-          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
-        </tr>
-
-        <!-- Coin 2 -->
-        <tr>
-          <td>2</td>
-          <td>
-            <div class="coin-cell">
-              <img src="https://via.placeholder.com/36/627EEA/FFFFFF?text=ETH" alt="ETH">
-              <div>
-                <div class="coin-name">Ethereum</div>
-                <div class="coin-symbol">ETH</div>
-              </div>
-            </div>
-          </td>
-          <td class="price">$2,845</td>
-          <td class="change-positive">+4.12%</td>
-          <td class="market-cap">$342B</td>
-          <td>$22.1B</td>
-          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
-        </tr>
-
-        <!-- Coin 3 -->
-        <tr>
-          <td>3</td>
-          <td>
-            <div class="coin-cell">
-              <img src="https://via.placeholder.com/36/00FFA3/000000?text=SOL" alt="SOL">
-              <div>
-                <div class="coin-name">Solana</div>
-                <div class="coin-symbol">SOL</div>
-              </div>
-            </div>
-          </td>
-          <td class="price">$142.80</td>
-          <td class="change-negative">-1.45%</td>
-          <td class="market-cap">$66.8B</td>
-          <td>$4.9B</td>
-          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
-        </tr>
-
-        <!-- Add more rows as needed -->
-        <tr>
-          <td>4</td>
-          <td>
-            <div class="coin-cell">
-              <img src="https://via.placeholder.com/36/F7931A/FFFFFF?text=BNB" alt="BNB">
-              <div>
-                <div class="coin-name">BNB</div>
-                <div class="coin-symbol">BNB</div>
-              </div>
-            </div>
-          </td>
-          <td class="price">$612.45</td>
-          <td class="change-positive">+1.78%</td>
-          <td class="market-cap">$89.4B</td>
-          <td>$2.1B</td>
-          <td><a href="#" class="btn" style="background:#22c55e;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:0.9rem;">Buy</a></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Pagination -->
-    <div class="pagination">
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">4</button>
-      <button class="page-btn">Next →</button>
+  <main class="container">
+    <div class="meta-row">
+      <div id="statusText">Loading coins...</div>
+      <div id="updatedAt">--</div>
     </div>
-  </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Coin</th><th>Price</th><th>24h</th><th>Market Cap</th><th>Volume</th><th>Trade</th>
+          </tr>
+        </thead>
+        <tbody id="coinTableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </main>
 
-  <!-- Footer -->
   <footer>
     <div class="container">
-      <p style="font-size: 1.5rem; margin-bottom: 1rem;">CryptoPortfolio</p>
-      <div class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="trending.html">Trending Coins</a>
-        <a href="how-to-buy.html">How to Buy</a>
-        <a href="where-to-buy.html">Where to Buy</a>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="about.html">About Me</a>
-      </div>
-      <p style="margin-top: 2.5rem; color: #64748b;">
-        &copy; 2026 Franklin • Port Harcourt, Rivers State, Nigeria
-      </p>
+      <p>&copy; 2026 CryptoPortfolio</p>
     </div>
   </footer>
 
   <script>
-    // Simple search functionality
-    const searchInput = document.getElementById('searchInput');
-    const tableRows = document.querySelectorAll('#cryptoTable tbody tr');
-
-    searchInput.addEventListener('keyup', () => {
-      const searchTerm = searchInput.value.toLowerCase();
-
-      tableRows.forEach(row => {
-        const coinName = row.querySelector('.coin-name').textContent.toLowerCase();
-        const coinSymbol = row.querySelector('.coin-symbol').textContent.toLowerCase();
-
-        if (coinName.includes(searchTerm) || coinSymbol.includes(searchTerm)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
+    const navLinks = document.getElementById('navLinks');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    mobileMenuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      mobileMenuBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
     });
-  </script>
 
+    const fmt = (n, d = 2) => new Intl.NumberFormat('en-US', { maximumFractionDigits: d }).format(n || 0);
+    const PAGE_SIZE = 40;
+    let allCoins = [];
+    let filteredCoins = [];
+    let page = 1;
+
+    function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    async function fetchMarketsPage(pageNum) {
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=${pageNum}&sparkline=false&price_change_percentage=24h`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        const err = new Error('HTTP ' + res.status);
+        err.status = res.status;
+        throw err;
+      }
+      const data = await res.json();
+      if (!Array.isArray(data)) return [];
+      return data;
+    }
+
+    async function fetchCoins(limit) {
+      const pages = Math.ceil(limit / 250);
+      const requests = [];
+      for (let i = 1; i <= pages; i++) {
+        requests.push(fetchMarketsPage(i));
+      }
+
+      // Allow partial success: if some pages fail (rate limit), use the ones that worked.
+      const settled = await Promise.allSettled(requests);
+      const okChunks = settled
+        .filter((r) => r.status === 'fulfilled')
+        .map((r) => r.value);
+
+      const merged = okChunks.flat().slice(0, limit);
+      if (!merged.length) {
+        // If everything failed, throw the first error so caller can backoff.
+        const firstErr = settled.find((r) => r.status === 'rejected');
+        throw (firstErr ? firstErr.reason : new Error('No data'));
+      }
+      return merged;
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const sortBy = document.getElementById('sortBy').value;
+      filteredCoins = allCoins.filter((c) => c.name.toLowerCase().includes(search) || c.symbol.toLowerCase().includes(search));
+      filteredCoins.sort((a, b) => {
+        if (sortBy === 'price') return (b.current_price || 0) - (a.current_price || 0);
+        if (sortBy === 'change') return (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0);
+        return (b.market_cap || 0) - (a.market_cap || 0);
+      });
+      page = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('coinTableBody');
+      tbody.innerHTML = '';
+      const start = (page - 1) * PAGE_SIZE;
+      const rows = filteredCoins.slice(start, start + PAGE_SIZE);
+      rows.forEach((coin, idx) => {
+        const change = coin.price_change_percentage_24h || 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${start + idx + 1}</td><td><div class="coin-cell"><img src="${coin.image}" alt="${coin.symbol}"><div><div>${coin.name}</div><small>${coin.symbol.toUpperCase()}</small></div></div></td><td>$${fmt(coin.current_price, 6)}</td><td class="${change >= 0 ? 'positive' : 'negative'}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</td><td>$${fmt(coin.market_cap, 0)}</td><td>$${fmt(coin.total_volume, 0)}</td><td><a href="https://www.coingecko.com/en/coins/${coin.id}" target="_blank" rel="noopener">Open</a></td>`;
+        tbody.appendChild(tr);
+      });
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredCoins.length / PAGE_SIZE));
+      const el = document.getElementById('pagination');
+      el.innerHTML = '';
+      const start = Math.max(1, page - 2);
+      const end = Math.min(totalPages, page + 2);
+      for (let i = start; i <= end; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'page-btn' + (i === page ? ' active' : '');
+        btn.textContent = i;
+        btn.addEventListener('click', () => { page = i; renderTable(); });
+        el.appendChild(btn);
+      }
+    }
+
+    let refreshTimer = null;
+    let backoffMs = 15000;
+    let isLoading = false;
+
+    async function loadCoins({ silent = false } = {}) {
+      if (isLoading) return;
+      isLoading = true;
+      const limit = Number(document.getElementById('coinLimit').value);
+
+      if (!silent) {
+        document.getElementById('statusText').textContent = `Loading ${limit} coins...`;
+      }
+
+      try {
+        const nextCoins = await fetchCoins(limit);
+        allCoins = nextCoins;
+        applyFilters();
+        document.getElementById('statusText').textContent = `${filteredCoins.length} coins loaded`;
+        document.getElementById('updatedAt').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+        backoffMs = 15000; // reset on success
+      } catch (err) {
+        // Don't wipe out existing data — keep search working with cached results.
+        const hadCache = allCoins.length > 0;
+        const status = (err && err.status) ? err.status : null;
+        if (status === 429) {
+          document.getElementById('statusText').textContent = hadCache
+            ? `Rate limited (429). Showing cached coins. Retrying in ${Math.round(backoffMs / 1000)}s...`
+            : `Rate limited (429). Retrying in ${Math.round(backoffMs / 1000)}s...`;
+        } else {
+          document.getElementById('statusText').textContent = hadCache
+            ? `Network error. Showing cached coins. Retrying in ${Math.round(backoffMs / 1000)}s...`
+            : `Could not load coins right now. Retrying in ${Math.round(backoffMs / 1000)}s...`;
+        }
+        backoffMs = Math.min(backoffMs * 2, 120000);
+      } finally {
+        isLoading = false;
+        scheduleAutoRefresh();
+      }
+    }
+
+    function scheduleAutoRefresh() {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => loadCoins({ silent: true }), backoffMs);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', () => {
+      // Searching should never trigger network calls; it only filters cached data.
+      applyFilters();
+    });
+    document.getElementById('sortBy').addEventListener('change', applyFilters);
+    document.getElementById('coinLimit').addEventListener('change', loadCoins);
+    document.getElementById('refreshBtn').addEventListener('click', loadCoins);
+    loadCoins();
+
+    const navConnectBtn = document.getElementById('navConnectBtn');
+    async function connectAnyWallet() {
+      try {
+        if (window.ethereum) {
+          const provider = Array.isArray(window.ethereum.providers) ? window.ethereum.providers[0] : window.ethereum;
+          const accounts = await provider.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts[0]) {
+            const a = accounts[0];
+            navConnectBtn.textContent = a.slice(0, 6) + '...' + a.slice(-4);
+            navConnectBtn.classList.add('connected');
+            return;
+          }
+        }
+        if (window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) {
+          const resp = await window.phantom.solana.connect();
+          const p = resp.publicKey.toString();
+          navConnectBtn.textContent = p.slice(0, 6) + '...' + p.slice(-4);
+          navConnectBtn.classList.add('connected');
+          return;
+        }
+        window.open(`https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`, '_blank');
+      } catch {
+        navConnectBtn.textContent = 'Try Again';
+      }
+    }
+    navConnectBtn.addEventListener('click', connectAnyWallet);
+  </script>
 </body>
 </html>

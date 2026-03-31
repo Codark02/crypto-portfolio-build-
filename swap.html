@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swap - CryptoPortfolio</title>
+  <meta name="description" content="Swap and buy crypto with live prices.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #0f172a; background: #f8fafc; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    header { background: #0f172a; color: white; position: sticky; top: 0; z-index: 1000; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; gap: 12px; }
+    .logo { font-size: 1.5rem; font-weight: 700; color: #22c55e; text-decoration: none; }
+    .nav-links { display: flex; gap: 1.1rem; list-style: none; }
+    .nav-links a { color: white; text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+    .mobile-menu-btn { display: none; border: none; background: none; color: white; font-size: 1.6rem; cursor: pointer; }
+    .hero { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 60px 0; text-align: center; }
+    .hero h1 { font-size: 2.2rem; margin-bottom: 10px; }
+    .hero p { color: #cbd5e1; }
+    .card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 6px 20px rgba(2,6,23,0.08); margin: 24px 0 50px; }
+    footer { background: #0f172a; color: white; text-align: center; padding: 44px 0 24px; }
+    .footer-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin: 18px 0; }
+    footer a { color: #94a3b8; text-decoration: none; }
+    @media (max-width: 860px) {
+      .mobile-menu-btn { display: block; }
+      .nav-links { position: fixed; top: 62px; left: -100%; width: 100%; height: calc(100vh - 62px); background: #0f172a; flex-direction: column; align-items: center; padding-top: 40px; transition: left 0.25s ease; }
+      .nav-links.active { left: 0; }
+      .hero h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a class="logo" href="index.html">CryptoPortfolio</a>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="swap.html">Swap</a></li>
+          <li><a href="trending.html">Trending</a></li>
+          <li><a href="how-to-buy.html">How to Buy</a></li>
+          <li><a href="where-to-buy.html">Where to Buy</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+        <button id="mobileMenuBtn" class="mobile-menu-btn">☰</button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Swap</h1>
+      <p>Live prices and swap tools live here.</p>
+    </div>
+  </section>
+
+  <main class="container">
+    <div class="card">
+      <p>Your swap interface is currently on the home page. If you want, I can move the swap UI here and keep the homepage clean.</p>
+      <p style="margin-top:10px;color:#475569;">For now, use the Swap section on <a href="index.html" style="color:#1d4ed8;text-decoration:none;font-weight:700;">Home</a>.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p style="font-size:1.4rem;">CryptoPortfolio</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="swap.html">Swap</a>
+        <a href="trending.html">Trending</a>
+        <a href="how-to-buy.html">How to Buy</a>
+        <a href="where-to-buy.html">Where to Buy</a>
+        <a href="about.html">About</a>
+      </div>
+      <p style="color:#64748b;">&copy; 2026 Franklin • Port Harcourt, Rivers State, Nigeria</p>
+    </div>
+  </footer>
+
+  <script>
+    const navLinks = document.getElementById('navLinks');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    mobileMenuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      mobileMenuBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+    });
+  </script>
+</body>
+</html>
+
