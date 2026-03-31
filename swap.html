@@ -257,6 +257,7 @@
     </div>
   </footer>
 
+  <script src="components/wallet.js"></script>
   <script>
     const navLinks = document.getElementById('navLinks');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -265,12 +266,174 @@
       mobileMenuBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
     });
 
-    let walletConnected = false;
-    let selectedBuyCoin = null;
-    let selectedSellCoin = null;
-    let walletAddress = '';
-    let web3Provider = null;
-    let walletBalances = {};
+    // Wallet UI Management
+    const navConnectBtn = document.getElementById('navConnectBtn');
+    const walletModal = document.getElementById('walletModal');
+    const walletStatus = document.getElementById('walletStatus');
+    const closeWalletModal = document.getElementById('closeWalletModal');
+
+    // Update wallet button UI
+    function updateWalletUI() {
+      const walletInfo = window.walletManager.getWalletInfo();
+      
+      if (walletInfo.connected) {
+        navConnectBtn.textContent = walletInfo.shortAddress;
+        navConnectBtn.classList.add('connected');
+        navConnectBtn.onclick = () => showWalletInfo();
+        
+        document.getElementById('buyBtn').textContent = 'Buy Now';
+        document.getElementById('sellBtn').textContent = 'Sell Now';
+        
+        // Fetch initial balances
+        window.walletManager.fetchWalletBalances();
+        
+        // Set up balance refresh
+        setInterval(() => window.walletManager.fetchWalletBalances(), 10000); // Refresh every 10 seconds
+      } else {
+        navConnectBtn.textContent = 'Connect Wallet';
+        navConnectBtn.classList.remove('connected');
+        navConnectBtn.onclick = () => walletModal.classList.add('open');
+        
+        document.getElementById('buyBtn').textContent = 'Connect Wallet to Buy';
+        document.getElementById('sellBtn').textContent = 'Connect Wallet to Sell';
+        
+        document.getElementById('buyBalance').textContent = '$0.00';
+        document.getElementById('sellBalance').textContent = '0 BTC';
+      }
+    }
+
+    // Show wallet info modal with disconnect option
+    function showWalletInfo() {
+      const walletInfo = window.walletManager.getWalletInfo();
+      const balances = walletInfo.balances;
+      
+      // Create balance display
+      let balanceHTML = '';
+      if (Object.keys(balances).length > 0) {
+        balanceHTML = '<div style="margin-top: 16px;"><strong>Your Balances:</strong><ul style="margin: 8px 0; padding-left: 20px;">';
+        Object.entries(balances).forEach(([symbol, balance]) => {
+          if (balance > 0) {
+            balanceHTML += `<li>${balance.toFixed(4)} ${symbol}</li>`;
+          }
+        });
+        balanceHTML += '</ul></div>';
+      }
+      
+      walletModal.innerHTML = `
+        <div class="wallet-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Wallet Connected</strong>
+            <button id="closeWalletModal" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button>
+          </div>
+          <p style="color:#64748b;font-size:0.92rem;margin-top:6px;">Address: ${walletInfo.address}</p>
+          ${balanceHTML}
+          <div style="margin-top: 16px;">
+            <button onclick="disconnectWallet()" style="width:100%;padding:10px;border:2px solid #ef4444;background:white;color:#ef4444;border-radius:8px;font-weight:600;cursor:pointer;">
+              Disconnect Wallet
+            </button>
+          </div>
+        </div>
+      `;
+      
+      walletModal.classList.add('open');
+      document.getElementById('closeWalletModal').addEventListener('click', () => walletModal.classList.remove('open'));
+    }
+
+    // Disconnect wallet
+    async function disconnectWallet() {
+      await window.walletManager.disconnectWallet();
+      walletModal.classList.remove('open');
+      updateWalletUI();
+    }
+
+    // Connect wallet function
+    async function connectWallet(walletKey) {
+      const connected = await window.walletManager.connectWallet(walletKey);
+      if (connected) {
+        walletModal.classList.remove('open');
+        updateWalletUI();
+      } else {
+        walletStatus.textContent = 'Wallet connection failed.';
+      }
+    }
+
+    // Listen for wallet events
+    window.walletManager.addListener((event, data) => {
+      console.log('Wallet event:', event, data);
+      updateWalletUI();
+      
+      if (event === 'balancesUpdated') {
+        updateBalanceDisplay();
+      }
+      
+      if (event === 'error') {
+        walletStatus.textContent = data.message;
+      }
+    });
+
+    // Update balance display
+    function updateBalanceDisplay() {
+      const walletInfo = window.walletManager.getWalletInfo();
+      const balances = walletInfo.balances;
+      
+      if (walletInfo.connected) {
+        // Update buy balance (USDC + USDT)
+        const usdcBalance = balances.USDC || 0;
+        const usdtBalance = balances.USDT || 0;
+        const totalStablecoins = usdcBalance + usdtBalance;
+        document.getElementById('buyBalance').textContent = `$${totalStablecoins.toFixed(2)}`;
+
+        // Update sell holdings
+        const holdings = Object.entries(balances)
+          .filter(([symbol, balance]) => balance > 0 && symbol !== 'USDC' && symbol !== 'USDT')
+          .map(([symbol, balance]) => `${balance.toFixed(4)} ${symbol}`)
+          .join(', ') || 'No holdings';
+        
+        document.getElementById('sellBalance').textContent = holdings;
+      }
+    }
+
+    // Initialize wallet UI
+    updateWalletUI();
+
+    // Close modal handlers
+    closeWalletModal.addEventListener('click', () => walletModal.classList.remove('open'));
+
+    // Wallet option handlers
+    function allEvmProviders() {
+      if (!window.ethereum) return [];
+      return Array.isArray(window.ethereum.providers) ? window.ethereum.providers : [window.ethereum];
+    }
+
+    function openMobileWallet(walletKey) {
+      const currentUrl = encodeURIComponent(window.location.href);
+      if (walletKey === 'metamask') window.open(`https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`, '_blank');
+      if (walletKey === 'phantom') window.open(`https://phantom.app/ul/browse/${currentUrl}?ref=${currentUrl}`, '_blank');
+      if (walletKey === 'okx') window.open('https://www.okx.com/web3', '_blank');
+      if (walletKey === 'rabby') window.open('https://rabby.io/', '_blank');
+    }
+
+    // Update wallet option handlers
+    document.querySelectorAll('.wallet-option').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const walletKey = btn.dataset.wallet;
+        
+        if (walletKey === 'phantom' && window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) {
+          // Handle Phantom (Solana) wallet
+          window.phantom.solana.connect().then((resp) => {
+            navConnectBtn.textContent = resp.publicKey.toString().slice(0, 6) + '...' + resp.publicKey.toString().slice(-4);
+            navConnectBtn.classList.add('connected');
+            walletStatus.textContent = 'Connected Phantom: ' + resp.publicKey.toString();
+            walletModal.classList.remove('open');
+          }).catch((e) => {
+            walletStatus.textContent = 'Phantom connection failed.';
+          });
+        } else {
+          // Handle EVM wallets
+          connectWallet(walletKey);
+        }
+      });
+    });
 
     // Real wallet connection functions
     async function connectWallet() {
@@ -1123,67 +1286,6 @@
       }
       
       return receipt;
-    }
-
-    function updateWalletDisplay() {
-      if (walletConnected) {
-        // Fetch real wallet balances
-        fetchWalletBalances();
-      }
-    }
-    
-    // Wallet connection (shared with home page)
-    const navConnectBtn = document.getElementById('navConnectBtn');
-    navConnectBtn.addEventListener('click', async () => {
-      if (!walletConnected) {
-        const connected = await connectWallet();
-        if (connected) {
-          navConnectBtn.textContent = walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
-          navConnectBtn.classList.add('connected');
-          
-          document.getElementById('buyBtn').textContent = 'Buy Now';
-          document.getElementById('sellBtn').textContent = 'Sell Now';
-          
-          // Fetch initial balances
-          await fetchWalletBalances();
-          
-          // Set up balance refresh
-          setInterval(fetchWalletBalances, 10000); // Refresh every 10 seconds
-        }
-      } else {
-        // Disconnect wallet
-        await disconnectWallet();
-        navConnectBtn.textContent = 'Connect Wallet';
-        navConnectBtn.classList.remove('connected');
-        
-        document.getElementById('buyBtn').textContent = 'Connect Wallet to Buy';
-        document.getElementById('sellBtn').textContent = 'Connect Wallet to Sell';
-        
-        document.getElementById('buyBalance').textContent = '$0.00';
-        document.getElementById('sellBalance').textContent = '0 BTC';
-      }
-    });
-
-    // Listen for account changes
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', async (accounts) => {
-        if (accounts.length === 0) {
-          // Wallet disconnected
-          await disconnectWallet();
-          navConnectBtn.textContent = 'Connect Wallet';
-          navConnectBtn.classList.remove('connected');
-        } else {
-          // Account changed
-          walletAddress = accounts[0];
-          navConnectBtn.textContent = walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
-          await fetchWalletBalances();
-        }
-      });
-
-      window.ethereum.on('chainChanged', () => {
-        // Chain changed, refresh balances
-        fetchWalletBalances();
-      });
     }
 
     // Initialize on page load
