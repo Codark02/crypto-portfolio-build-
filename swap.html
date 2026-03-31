@@ -19,6 +19,11 @@
     .wallet-btn { border: none; border-radius: 999px; padding: 9px 14px; background: #22c55e; color: white; font-weight: 700; cursor: pointer; }
     .wallet-btn.connected { background: #1d4ed8; }
     .mobile-menu-btn { display: none; border: none; background: none; color: white; font-size: 1.6rem; }
+    .wallet-modal { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.6); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 2000; }
+    .wallet-modal.open { display: flex; }
+    .wallet-box { background: white; width: min(480px, 100%); border-radius: 14px; padding: 16px; }
+    .wallet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .wallet-option { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; font-weight: 600; cursor: pointer; background: #f8fafc; }
     
     .buy-sell-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: #f1f5f9; padding: 4px; border-radius: 12px; }
     .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #64748b; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
@@ -257,6 +262,23 @@
     </div>
   </footer>
 
+  <div class="wallet-modal" id="walletModal">
+    <div class="wallet-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>Connect wallet</strong>
+        <button id="closeWalletModal" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button>
+      </div>
+      <p style="color:#64748b;font-size:0.92rem;margin-top:6px;">Choose a wallet extension on desktop, or open wallet app on mobile.</p>
+      <div class="wallet-grid">
+        <button class="wallet-option" data-wallet="metamask">MetaMask</button>
+        <button class="wallet-option" data-wallet="rabby">Rabby</button>
+        <button class="wallet-option" data-wallet="okx">OKX Wallet</button>
+        <button class="wallet-option" data-wallet="phantom">Phantom</button>
+      </div>
+      <p id="walletStatus" style="margin-top:10px;font-size:0.9rem;color:#334155;">Not connected</p>
+    </div>
+  </div>
+
   <script src="components/wallet.js"></script>
   <script>
     const navLinks = document.getElementById('navLinks');
@@ -435,43 +457,10 @@
       });
     });
 
-    // Real wallet connection functions
-    async function connectWallet() {
-      try {
-        // Check for MetaMask or other Web3 providers
-        if (window.ethereum) {
-          web3Provider = window.ethereum;
-          await web3Provider.request({ method: 'eth_requestAccounts' });
-          const accounts = await web3Provider.request({ method: 'eth_accounts' });
-          walletAddress = accounts[0];
-          
-          // Get chain ID
-          const chainId = await web3Provider.request({ method: 'eth_chainId' });
-          
-          walletConnected = true;
-          return true;
-        } else {
-          alert('Please install MetaMask or another Web3 wallet extension');
-          return false;
-        }
-      } catch (error) {
-        console.error('Wallet connection failed:', error);
-        alert('Failed to connect wallet: ' + error.message);
-        return false;
-      }
-    }
-
-    async function disconnectWallet() {
-      walletConnected = false;
-      walletAddress = '';
-      web3Provider = null;
-      walletBalances = {};
-    }
-
-    // Enhanced token contract mappings with proper addresses
+    // Token contracts and coin mappings
     const TOKEN_CONTRACTS = {
       USDC: { 
-        address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8',
+        address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8',
         decimals: 6,
         chainId: 1
       },
@@ -497,30 +486,25 @@
       }
     };
 
-    // Comprehensive coin mappings for 100+ cryptocurrencies
     const COIN_MAPPINGS = {
-      // Top 20 Cryptocurrencies
       'bitcoin': { symbol: 'BTC', address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8 },
       'ethereum': { symbol: 'ETH', address: null, decimals: 18 },
       'tether': { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
-      'usd-coin': { symbol: 'USDC', address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
+      'usd-coin': { symbol: 'USDC', address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
       'binancecoin': { symbol: 'BNB', address: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52', decimals: 18 },
       'solana': { symbol: 'SOL', address: '0xD31a59c85ae9D8dfec12d4422399843D80c6566a', decimals: 18 },
       'ripple': { symbol: 'XRP', address: '0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE', decimals: 6 },
-      'usd-coin': { symbol: 'USDC', address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
       'cardano': { symbol: 'ADA', address: '0x3EE8A20A4B0f3ECb5B1e0A8D72e3c8C9f8e8C8e8', decimals: 18 },
       'dogecoin': { symbol: 'DOGE', address: '0x4206931337DC273a6bD5D3D9e0D7C4e0A7b7C3e9', decimals: 8 },
       'polkadot-new': { symbol: 'DOT', address: '0x7083609fCE4d1d8Dc0C979AAb8c869Ea2C873402', decimals: 10 },
-      'avalanche-2': { symbol: 'AVAX', address: '0xB31f66AA3C1e57E305Bb4522F7F0c8d8d8d8d8d8d', decimals: 18 },
-      'chainlink': { symbol: 'LINK', address: '0x5149107717091b6a7A2d2f0a4e2D8d8d8d8d8d8d', decimals: 18 },
+      'avalanche-2': { symbol: 'AVAX', address: '0xB31f66AA3C1e57E305Bb4522F7F0c8d8d8d8d8d', decimals: 18 },
+      'chainlink': { symbol: 'LINK', address: '0x5149107717091b6a7A2d2f0a4e2D8d8d8d8d8d', decimals: 18 },
       'polygon-ecosystem-token': { symbol: 'POL', address: '0x45232Be4c1d6B39d0d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
       'uniswap': { symbol: 'UNI', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984', decimals: 18 },
       'litecoin': { symbol: 'LTC', address: '0x4338665cBB7B2485A8855A139575FeD5D5d5d5d5d', decimals: 8 },
       'stellar': { symbol: 'XLM', address: '0x833589fFB6bf3A5c2c8d8d8d8d8d8d8d8d8d8d8d', decimals: 7 },
       'monero': { symbol: 'XMR', address: '0x4C2aB8C8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 12 },
       'cosmos': { symbol: 'ATOM', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 6 },
-      
-      // DeFi Tokens
       'aave': { symbol: 'AAVE', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9', decimals: 18 },
       'compound': { symbol: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26808', decimals: 18 },
       'maker': { symbol: 'MKR', address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', decimals: 18 },
@@ -530,252 +514,24 @@
       'yearn-finance': { symbol: 'YFI', address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', decimals: 18 },
       'balancer': { symbol: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D', decimals: 18 },
       '1inch': { symbol: '1INCH', address: '0x111111125421cA6dc452d289314280a0f8842A65', decimals: 18 },
-      'pancakeswap-token': { symbol: 'CAKE', address: '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19481C252', decimals: 18 },
-      
-      // Gaming & Metaverse
       'axie-infinity': { symbol: 'AXS', address: '0xBB0E17EF65F82Ab018d8EDd776e8979800c4D2Bc', decimals: 18 },
       'the-sandbox': { symbol: 'SAND', address: '0x3845badAde8e6dFF049820680d1B14dA089668A3', decimals: 18 },
-      'decentraland': { symbol: 'MANA', address: '0x0F5D2fB29fb7d3C785374F7b362aD8d8d8d8d8d8d', decimals: 18 },
-      'enjincoin': { symbol: 'ENJ', address: '0xF629c45d8d6C9614aE37322bF3d8d8d8d8d8d8d8d', decimals: 18 },
-      'gala': { symbol: 'GALA', address: '0x15D4c048F83Db7a3A4934A4Ae8d8d8d8d8d8d8d8d', decimals: 18 },
-      'immutable-x': { symbol: 'IMX', address: '0xF57e7E7E23d8A5C0C8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'flow': { symbol: 'FLOW', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
+      'decentraland': { symbol: 'MANA', address: '0x0F5D2fB29fb7d3C785374F7b362aD8d8d8d8d8d', decimals: 18 },
+      'enjincoin': { symbol: 'ENJ', address: '0xF629c45d8d6C9614aE37322bF3d8d8d8d8d8d8d', decimals: 18 },
+      'gala': { symbol: 'GALA', address: '0x15D4c048F83Db7a3A4934A4Ae8d8d8d8d8d8d8d', decimals: 18 },
       'ape-coin': { symbol: 'APE', address: '0x4d224452801ACEd8B2F0AEb1551558d8d8d8d8d8d', decimals: 18 },
-      
-      // Layer 2 Solutions
       'arbitrum': { symbol: 'ARB', address: '0x912CE59144191C1204E64559FE8253a0e49E6548', decimals: 18 },
       'optimism': { symbol: 'OP', address: '0x4200000000000000000000000000000000000042', decimals: 18 },
-      'immutable-x': { symbol: 'IMX', address: '0xF57e7E7E23d8A5C0C8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
       'polygon': { symbol: 'MATIC', address: '0x7D1AfA7B718fb892d6d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'loopring': { symbol: 'LRC', address: '0xBBbbCA6A901C9163d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      
-      // Privacy Coins
-      'zcash': { symbol: 'ZEC', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 8 },
-      'dash': { symbol: 'DASH', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 8 },
-      'verge': { symbol: 'XVG', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 8 },
-      'horizen': { symbol: 'ZEN', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 8 },
-      
-      // Exchange Tokens
-      'binancecoin': { symbol: 'BNB', address: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52', decimals: 18 },
-      'crypto-com-chain': { symbol: 'CRO', address: '0xA0b73E1Ff0B80914AB6fe9942BCd8d8d8d8d8d8d', decimals: 8 },
-      'kucoin-token': { symbol: 'KCS', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 6 },
-      'huobi-token': { symbol: 'HT', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'okb': { symbol: 'OKB', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      
-      // Stablecoins
-      'tether': { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
-      'usd-coin': { symbol: 'USDC', address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
-      'dai': { symbol: 'DAI', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
-      'frax': { symbol: 'FRAX', address: '0x853d955aCEf822Db058eb8505911ED77F125b85E', decimals: 18 },
-      'true-usd': { symbol: 'TUSD', address: '0x0000000000085d4780B73119b644AE5ecd22b376', decimals: 18 },
-      'paxos-standard': { symbol: 'PAX', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1', decimals: 18 },
-      
-      // Meme Coins
-      'dogecoin': { symbol: 'DOGE', address: '0x4206931337DC273a6bD5D3D9e0D7C4e0A7b7C3e9', decimals: 8 },
       'shiba-inu': { symbol: 'SHIB', address: '0x95aD61b0a150d79219dCF64E1E6C01bf0B8C8C8d', decimals: 18 },
-      'pepe': { symbol: 'PEPE', address: '0x6982508145454B6e8E24842479B7c8d8d8d8d8d8d', decimals: 18 },
-      'floki': { symbol: 'FLOKI', address: '0xCF10Bb8159e8c2E5d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 9 },
-      'baby-doge-coin': { symbol: 'BABYDOGE', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 9 },
-      
-      // AI & Big Data
-      'singularitynet': { symbol: 'AGIX', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'fetch-ai': { symbol: 'FET', address: '0xAEa1990219862629A6219A8362fF8d8d8d8d8d8d', decimals: 18 },
-      'ocean-protocol': { symbol: 'OCEAN', address: '0x967DA4048cD07aB378cC7d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'numeraire': { symbol: 'NMR', address: '0x1776e1F26f98b1A5dF9cD347953a26d8d8d8d8d8d', decimals: 18 },
-      'cortex': { symbol: 'CTXC', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      
-      // Oracle Services
-      'chainlink': { symbol: 'LINK', address: '0x5149107717091b6a7A2d2f0a4e2D8d8d8d8d8d8d', decimals: 18 },
-      'band-protocol': { symbol: 'BAND', address: '0xBA11D00c5F74255f56d5AE9741f8d8d8d8d8d8d8d', decimals: 18 },
-      'tellor': { symbol: 'TRB', address: '0x88dF592F8eb5D7Bd38bFeF1dE1d8d8d8d8d8d8d8d', decimals: 18 },
-      'uma': { symbol: 'UMA', address: '0x04Fa0d235C4abf4BCf4787aF4CF7478d8d8d8d8d8d', decimals: 18 },
-      
-      // Storage & Computing
-      'filecoin': { symbol: 'FIL', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'theta-token': { symbol: 'THETA', address: '0x3883f5E0f8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'siacoin': { symbol: 'SC', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 12 },
-      'storj': { symbol: 'STORJ', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 8 },
-      'arweave': { symbol: 'AR', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 12 },
-      
-      // Healthcare & BioTech
-      'medical-chain': { symbol: 'MTN', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'doc.com': { symbol: 'MTC', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'curecoin': { symbol: 'CURE', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 8 },
-      
-      // Energy & Green
-      'power-ledger': { symbol: 'POWR', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 6 },
-      'energy-web-token': { symbol: 'EWT', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'carbon': { symbol: 'CTN', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 }
+      'pepe': { symbol: 'PEPE', address: '0x6982508145454B6e8E24842479B7c8d8d8d8d8d', decimals: 18 },
+      'dai': { symbol: 'DAI', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 }
     };
-
-    const ERC20_ABI = [
-      {
-        "constant": true,
-        "inputs": [{"name": "_owner", "type": "address"}],
-        "name": "balanceOf",
-        "outputs": [{"name": "balance", "type": "uint256"}],
-        "type": "function"
-      },
-      {
-        "constant": false,
-        "inputs": [
-          {"name": "_to", "type": "address"},
-          {"name": "_value", "type": "uint256"}
-        ],
-        "name": "transfer",
-        "outputs": [{"name": "", "type": "bool"}],
-        "type": "function"
-      },
-      {
-        "constant": false,
-        "inputs": [
-          {"name": "spender", "type": "address"},
-          {"name": "value", "type": "uint256"}
-        ],
-        "name": "approve",
-        "outputs": [{"name": "", "type": "bool"}],
-        "type": "function"
-      }
-    ];
-
-    // Enhanced fetch real wallet balances with error handling
-    async function fetchWalletBalances() {
-      if (!walletConnected || !web3Provider) {
-        console.log('Wallet not connected, skipping balance fetch');
-        return;
-      }
-
-      try {
-        console.log('Fetching wallet balances for:', walletAddress);
-        
-        // Get ETH balance
-        try {
-          const ethBalance = await web3Provider.request({
-            method: 'eth_getBalance',
-            params: [walletAddress, 'latest']
-          });
-          walletBalances.ETH = parseFloat(ethBalance || '0') / 1e18;
-          console.log('ETH Balance:', walletBalances.ETH);
-        } catch (error) {
-          console.error('Error fetching ETH balance:', error);
-          walletBalances.ETH = 0;
-        }
-
-        // Get ERC20 token balances
-        for (const [symbol, tokenInfo] of Object.entries(TOKEN_CONTRACTS)) {
-          if (symbol === 'ETH' || !tokenInfo.address) continue;
-          
-          try {
-            console.log(`Fetching ${symbol} balance from contract:`, tokenInfo.address);
-            
-            const balanceData = await web3Provider.request({
-              method: 'eth_call',
-              params: [{
-                to: tokenInfo.address,
-                data: '0x70a08231' + walletAddress.slice(2).padStart(64, '0') // balanceOf(address)
-              }, 'latest']
-            });
-            
-            const balance = balanceData || '0x0';
-            const decimals = tokenInfo.decimals;
-            walletBalances[symbol] = parseFloat(balance) / Math.pow(10, decimals);
-            console.log(`${symbol} Balance:`, walletBalances[symbol]);
-            
-          } catch (error) {
-            console.error(`Error fetching ${symbol} balance:`, error);
-            walletBalances[symbol] = 0;
-          }
-        }
-
-        updateBalanceDisplay();
-      } catch (error) {
-        console.error('Error in fetchWalletBalances:', error);
-      }
-    }
-
-    function updateBalanceDisplay() {
-      if (!walletConnected) return;
-
-      // Update buy balance (USDC + USDT)
-      const usdcBalance = walletBalances.USDC || 0;
-      const usdtBalance = walletBalances.USDT || 0;
-      const totalStablecoins = usdcBalance + usdtBalance;
-      document.getElementById('buyBalance').textContent = `$${totalStablecoins.toFixed(2)}`;
-
-      // Update sell holdings
-      const holdings = Object.entries(walletBalances)
-        .filter(([symbol, balance]) => balance > 0 && symbol !== 'USDC' && symbol !== 'USDT')
-        .map(([symbol, balance]) => `${balance.toFixed(4)} ${symbol}`)
-        .join(', ') || 'No holdings';
-      
-      document.getElementById('sellBalance').textContent = holdings;
-    }
-
-    // Real swap execution using Relay.link
-    async function executeRealSwap(tokenIn, tokenOut, amountIn, isBuy) {
-      try {
-        // Get quote from Relay.link
-        const quoteResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/quotes`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
-          },
-          body: JSON.stringify({
-            chainId: await web3Provider.request({ method: 'eth_chainId' }),
-            sellToken: tokenIn,
-            buyToken: tokenOut,
-            sellAmount: amountIn.toString(),
-            slippagePercentage: 0.5,
-            userWallet: walletAddress
-          })
-        });
-
-        const quote = await quoteResponse.json();
-
-        // Get transaction data
-        const transactionResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/transactions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
-          },
-          body: JSON.stringify({
-            chainId: await web3Provider.request({ method: 'eth_chainId' }),
-            sellToken: tokenIn,
-            buyToken: tokenOut,
-            sellAmount: amountIn.toString(),
-            slippagePercentage: 0.5,
-            userWallet: walletAddress,
-            quoteId: quote.quoteId
-          })
-        });
-
-        const transaction = await transactionResponse.json();
-
-        // Execute transaction through wallet
-        const txHash = await web3Provider.request({
-          method: 'eth_sendTransaction',
-          params: [{
-            to: transaction.to,
-            data: transaction.data,
-            value: transaction.value || '0x0',
-            gas: transaction.gas || '0x5208',
-            gasPrice: transaction.gasPrice || '0x0'
-          }]
-        });
-
-        return txHash;
-      } catch (error) {
-        console.error('Swap execution failed:', error);
-        throw error;
-      }
-    }
 
     // Relay.link integration (hidden from UI)
     const RELAY_CONFIG = {
       baseUrl: 'https://api.relay.link',
-      apiKey: 'hidden_key', // This would be stored securely
+      apiKey: 'hidden_key',
       supportedChains: ['ethereum', 'polygon', 'bsc', 'arbitrum'],
       liquiditySources: ['uniswap', 'curve', 'balancer', 'sushiswap']
     };
@@ -783,11 +539,9 @@
     // Fetch real-time prices from multiple sources (including relay.link)
     async function fetchRealTimePrices() {
       try {
-        // Primary: CoinGecko for display prices - fetch top 250 coins
         const cgResponse = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h');
         const cgData = await cgResponse.json();
         
-        // Secondary: Relay.link for liquidity and execution (hidden)
         try {
           const relayResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/quotes`, {
             method: 'POST',
@@ -797,7 +551,7 @@
             },
             body: JSON.stringify({
               chainId: 1,
-              sellToken: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8',
+              sellToken: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8',
               buyToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
               sellAmount: '1000000000'
             })
@@ -807,7 +561,6 @@
         }
         
         return cgData.map(coin => {
-          // Get contract mapping for this coin
           const mapping = COIN_MAPPINGS[coin.id] || {};
           
           return {
@@ -817,8 +570,8 @@
             image: coin.image,
             current_price: coin.current_price || 0,
             price_change_percentage_24h: coin.price_change_percentage_24h || 0,
-            liquidity: Math.random() * 1000000, // Simulated liquidity data
-            relayAvailable: true, // All coins available through relay
+            liquidity: Math.random() * 1000000,
+            relayAvailable: true,
             contractAddress: mapping.address || null,
             decimals: mapping.decimals || 18,
             category: getCoinCategory(coin.id)
@@ -833,7 +586,6 @@
     // Categorize coins for better organization
     function getCoinCategory(coinId) {
       const categories = {
-        // Top Coins
         'bitcoin': '🥇 Top Coins',
         'ethereum': '🥇 Top Coins',
         'tether': '💰 Stablecoins',
@@ -846,57 +598,13 @@
         'polkadot-new': '🥇 Top Coins',
         'avalanche-2': '🔷 Layer 1',
         'chainlink': '🔗 Oracles',
-        
-        // DeFi
         'aave': '🏦 DeFi',
         'compound': '🏦 DeFi',
         'maker': '🏦 DeFi',
-        'synthetix-network-token': '🏦 DeFi',
-        'curve-dao-token': '🏦 DeFi',
-        'sushi': '🏦 DeFi',
-        'yearn-finance': '🏦 DeFi',
         'uniswap': '🏦 DeFi',
-        'balancer': '🏦 DeFi',
-        '1inch': '🏦 DeFi',
-        
-        // Gaming
-        'axie-infinity': '🎮 Gaming',
-        'the-sandbox': '🌍 Metaverse',
-        'decentraland': '🌍 Metaverse',
-        'enjincoin': '🎮 Gaming',
-        'gala': '🎮 Gaming',
-        'ape-coin': '🎮 Gaming',
-        
-        // Layer 2
-        'arbitrum': '⚡ Layer 2',
-        'optimism': '⚡ Layer 2',
-        'polygon': '⚡ Layer 2',
-        'loopring': '⚡ Layer 2',
-        
-        // Privacy
-        'monero': '🕵️ Privacy',
-        'zcash': '🕵️ Privacy',
-        
-        // Meme Coins
         'shiba-inu': '🐕 Meme Coins',
         'pepe': '🐕 Meme Coins',
-        'floki': '🐕 Meme Coins',
-        
-        // AI
-        'singularitynet': '🤖 AI',
-        'fetch-ai': '🤖 AI',
-        'ocean-protocol': '🤖 AI',
-        
-        // Other categories
-        'litecoin': '💎 Classic',
-        'stellar': '💎 Classic',
-        'cosmos': '🌐 Cosmos',
-        'algorand': '🔷 Layer 1',
-        'hedera-hashgraph': '🔷 Layer 1',
-        'vechain': '🔷 Layer 1',
-        'theta-token': '📺 Media',
-        'filecoin': '💾 Storage',
-        'internet-computer': '💻 Computing'
+        'dai': '� Stablecoins'
       };
       
       return categories[coinId] || '📈 Other';
@@ -913,7 +621,6 @@
       const listId = type === 'buy' ? 'buyCoinList' : 'sellCoinList';
       const listElement = document.getElementById(listId);
       
-      // Group coins by category
       const groupedCoins = {};
       coins.forEach(coin => {
         const category = coin.category || '📈 Other';
@@ -923,7 +630,6 @@
         groupedCoins[category].push(coin);
       });
       
-      // Sort categories and coins within each category
       const sortedCategories = Object.keys(groupedCoins).sort();
       
       let html = '';
@@ -935,7 +641,6 @@
           <div class="category-coins">`;
         
         categoryCoins.forEach(coin => {
-          // Ensure coin properties are defined
           const id = coin.id || 'unknown';
           const name = coin.name || 'Unknown Coin';
           const symbol = (coin.symbol || '').toUpperCase();
@@ -986,13 +691,11 @@
     function selectCoin(type, coinId, symbol, name, price, image) {
       console.log('selectCoin called with:', { type, coinId, symbol, name, price, image });
       
-      // Ensure all parameters are defined and strings
       symbol = symbol || 'UNKNOWN';
       name = name || symbol;
       price = price || 0;
       image = image || 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png';
       
-      // Get contract address from mappings
       const mapping = COIN_MAPPINGS[coinId] || COIN_MAPPINGS[symbol.toLowerCase()];
       const contractAddress = mapping ? mapping.address : null;
       const decimals = mapping ? mapping.decimals : 18;
@@ -1014,7 +717,6 @@
         document.getElementById('buyReceive').textContent = `0 ${symbol}`;
         document.getElementById('buyPrice').textContent = `$${price.toLocaleString()}`;
         
-        // Update selected state
         document.querySelectorAll('#buyCoinList .coin-item').forEach(item => {
           item.classList.remove('selected');
         });
@@ -1026,7 +728,6 @@
         document.getElementById('sellFromAmount').textContent = `0 ${symbol}`;
         document.getElementById('sellPrice').textContent = `$${price.toLocaleString()}`;
         
-        // Update selected state
         document.querySelectorAll('#sellCoinList .coin-item').forEach(item => {
           item.classList.remove('selected');
         });
@@ -1067,8 +768,7 @@
       document.getElementById('buyReceive').textContent = `${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}`;
       document.getElementById('buyTotal').textContent = `$${total.toFixed(2)}`;
       
-      // Update gas fee (simulated)
-      const gasFee = total * 0.001; // 0.1% fee
+      const gasFee = total * 0.001;
       document.getElementById('buyGasFee').textContent = `$${gasFee.toFixed(2)}`;
     }
 
@@ -1081,8 +781,7 @@
       document.getElementById('sellFromAmount').textContent = `${amount} ${selectedSellCoin.symbol}`;
       document.getElementById('sellReceive').textContent = `$${total.toFixed(2)}`;
       
-      // Update gas fee (simulated)
-      const gasFee = total * 0.001; // 0.1% fee
+      const gasFee = total * 0.001;
       document.getElementById('sellGasFee').textContent = `$${gasFee.toFixed(2)}`;
     }
 
@@ -1093,8 +792,9 @@
 
     // Execute buy through real wallet and relay.link
     async function executeBuy() {
-      if (!walletConnected) {
-        const connected = await connectWallet();
+      const walletInfo = window.walletManager.getWalletInfo();
+      if (!walletInfo.connected) {
+        const connected = await window.walletManager.connectWallet();
         if (!connected) return;
       }
       
@@ -1130,27 +830,24 @@
         // For native ETH, we need special handling
         if (selectedBuyCoin.symbol === 'ETH' || !tokenOut) {
           // Handle ETH purchase directly
-          const txHash = await web3Provider.request({
-            method: 'eth_sendTransaction',
-            params: [{
-              to: '0x0000000000000000000000000000000000000000', // ETH purchase router
-              data: '0x', // Would be actual swap data
-              value: amountIn,
-              gas: '0x5208',
-              gasPrice: await web3Provider.request({ method: 'eth_gasPrice' })
-            }]
+          const txHash = await window.walletManager.executeTransaction({
+            to: '0x0000000000000000000000000000000000000000', // ETH purchase router
+            data: '0x', // Would be actual swap data
+            value: amountIn,
+            gas: '0x5208',
+            gasPrice: await walletInfo.provider.request({ method: 'eth_gasPrice' })
           });
           
-          await waitForTransaction(txHash);
-          await fetchWalletBalances();
+          await window.walletManager.waitForTransaction(txHash);
+          await window.walletManager.fetchWalletBalances();
           
           const receiveAmount = amount / selectedBuyCoin.price;
           alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
         } else {
           // Execute real swap for ERC20 tokens
           const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, true);
-          await waitForTransaction(txHash);
-          await fetchWalletBalances();
+          await window.walletManager.waitForTransaction(txHash);
+          await window.walletManager.fetchWalletBalances();
           
           const receiveAmount = amount / selectedBuyCoin.price;
           alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
@@ -1173,8 +870,9 @@
 
     // Execute sell through real wallet and relay.link
     async function executeSell() {
-      if (!walletConnected) {
-        const connected = await connectWallet();
+      const walletInfo = window.walletManager.getWalletInfo();
+      if (!walletInfo.connected) {
+        const connected = await window.walletManager.connectWallet();
         if (!connected) return;
       }
       
@@ -1189,7 +887,7 @@
         return;
       }
       
-      const currentBalance = walletBalances[selectedSellCoin.symbol] || 0;
+      const currentBalance = walletInfo.balances[selectedSellCoin.symbol] || 0;
       if (amount > currentBalance) {
         alert(`Insufficient balance. You have ${currentBalance.toFixed(6)} ${selectedSellCoin.symbol}.`);
         return;
@@ -1218,27 +916,24 @@
         // For native ETH, we need special handling
         if (selectedSellCoin.symbol === 'ETH' || !tokenIn) {
           // Handle ETH sale directly
-          const txHash = await web3Provider.request({
-            method: 'eth_sendTransaction',
-            params: [{
-              to: '0x0000000000000000000000000000000000000000', // ETH sale router
-              data: '0x', // Would be actual swap data
-              value: amountIn,
-              gas: '0x5208',
-              gasPrice: await web3Provider.request({ method: 'eth_gasPrice' })
-            }]
+          const txHash = await window.walletManager.executeTransaction({
+            to: '0x0000000000000000000000000000000000000000', // ETH sale router
+            data: '0x', // Would be actual swap data
+            value: amountIn,
+            gas: '0x5208',
+            gasPrice: await walletInfo.provider.request({ method: 'eth_gasPrice' })
           });
           
-          await waitForTransaction(txHash);
-          await fetchWalletBalances();
+          await window.walletManager.waitForTransaction(txHash);
+          await window.walletManager.fetchWalletBalances();
           
           const receiveAmount = amount * selectedSellCoin.price;
           alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
         } else {
           // Execute real swap for ERC20 tokens
           const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, false);
-          await waitForTransaction(txHash);
-          await fetchWalletBalances();
+          await window.walletManager.waitForTransaction(txHash);
+          await window.walletManager.fetchWalletBalances();
           
           const receiveAmount = amount * selectedSellCoin.price;
           alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
@@ -1256,6 +951,61 @@
         const sellBtn = document.getElementById('sellBtn');
         sellBtn.textContent = 'Sell Now';
         sellBtn.disabled = false;
+      }
+    }
+
+    // Real swap execution using Relay.link
+    async function executeRealSwap(tokenIn, tokenOut, amountIn, isBuy) {
+      try {
+        const quoteResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/quotes`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
+          },
+          body: JSON.stringify({
+            chainId: await window.walletManager.getWalletInfo().provider.request({ method: 'eth_chainId' }),
+            sellToken: tokenIn,
+            buyToken: tokenOut,
+            sellAmount: amountIn.toString(),
+            slippagePercentage: 0.5,
+            userWallet: window.walletManager.getWalletInfo().address
+          })
+        });
+
+        const quote = await quoteResponse.json();
+
+        const transactionResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
+          },
+          body: JSON.stringify({
+            chainId: await window.walletManager.getWalletInfo().provider.request({ method: 'eth_chainId' }),
+            sellToken: tokenIn,
+            buyToken: tokenOut,
+            sellAmount: amountIn.toString(),
+            slippagePercentage: 0.5,
+            userWallet: window.walletManager.getWalletInfo().address,
+            quoteId: quote.quoteId
+          })
+        });
+
+        const transaction = await transactionResponse.json();
+
+        const txHash = await window.walletManager.executeTransaction({
+          to: transaction.to,
+          data: transaction.data,
+          value: transaction.value || '0x0',
+          gas: transaction.gas || '0x5208',
+          gasPrice: transaction.gasPrice || '0x0'
+        });
+
+        return txHash;
+      } catch (error) {
+        console.error('Swap execution failed:', error);
+        throw error;
       }
     }
 
