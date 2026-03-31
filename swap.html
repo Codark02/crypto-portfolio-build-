@@ -457,6 +457,10 @@
       });
     });
 
+    // Essential variables
+    let selectedBuyCoin = null;
+    let selectedSellCoin = null;
+
     // Token contracts and coin mappings
     const TOKEN_CONTRACTS = {
       USDC: { 
@@ -1009,39 +1013,27 @@
       }
     }
 
-    // Wait for transaction confirmation
+    // Wait for transaction confirmation using shared wallet manager
     async function waitForTransaction(txHash) {
-      if (!web3Provider) return;
-      
-      let receipt = null;
-      while (!receipt) {
-        try {
-          receipt = await web3Provider.request({
-            method: 'eth_getTransactionReceipt',
-            params: [txHash]
-          });
-          
-          if (!receipt) {
-            // Wait 2 seconds before checking again
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          }
-        } catch (error) {
-          console.error('Error checking transaction:', error);
-          break;
-        }
-      }
-      
-      if (!receipt || receipt.status === '0x0') {
-        throw new Error('Transaction failed');
-      }
-      
-      return receipt;
+      return await window.walletManager.waitForTransaction(txHash);
     }
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
       initializeCoinLists();
       setInterval(initializeCoinLists, 30000); // Refresh prices every 30 seconds
+      
+      // Add event listeners for buy/sell buttons
+      document.getElementById('buyBtn').addEventListener('click', executeBuy);
+      document.getElementById('sellBtn').addEventListener('click', executeSell);
+      
+      // Add event listeners for amount inputs
+      document.getElementById('buyAmount').addEventListener('input', calculateBuyTotal);
+      document.getElementById('sellAmount').addEventListener('input', calculateSellTotal);
+      
+      // Add event listeners for search inputs
+      document.getElementById('buySearchInput').addEventListener('input', () => searchCoins('buy'));
+      document.getElementById('sellSearchInput').addEventListener('input', () => searchCoins('sell'));
     });
   </script>
 </body>
