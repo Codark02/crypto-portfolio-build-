@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Swap | CryptoPortfolio</title>
-  <meta name="description" content="Swap cryptocurrencies instantly with best rates">
+  <meta name="description" content="Buy and sell cryptocurrencies with real-time prices.">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f8fafc; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
     header { background: #0f172a; color: white; position: sticky; top: 0; z-index: 1000; }
     nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; gap: 12px; }
     .logo { font-size: 1.5rem; font-weight: 700; color: #22c55e; text-decoration: none; }
@@ -25,93 +25,76 @@
     .wallet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     .wallet-option { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; font-weight: 600; cursor: pointer; background: #f8fafc; }
     
-    .buy-sell-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: #f1f5f9; padding: 4px; border-radius: 12px; }
-    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #64748b; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
-    .tab-btn.active { background: white; color: #22c55e; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .tab-btn.sell.active { color: #ef4444; }
+    .swap-section { padding: 80px 0 60px; min-height: calc(100vh - 200px); }
+    .page-title { text-align: center; font-size: 2.2rem; color: #0f172a; margin-bottom: 8px; }
+    .page-subtitle { text-align: center; color: #64748b; margin-bottom: 32px; }
     
-    .buy-section { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
-    .sell-section { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
+    .swap-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
     
-    .swap-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(2, 6, 23, 0.06); }
-    .buy-card { border-left: 4px solid #22c55e; }
-    .sell-card { border-left: 4px solid #ef4444; }
+    .buy-area, .sell-area { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(2, 6, 23, 0.06); }
+    .buy-area { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
+    .sell-area { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
     
-    .coin-search { position: relative; margin-bottom: 16px; }
-    .search-input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; }
-    .search-input:focus { border-color: #22c55e; }
-    .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; }
+    .area-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.1); }
+    .area-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
+    .buy-area .area-icon { background: #22c55e; color: white; }
+    .sell-area .area-icon { background: #ef4444; color: white; }
+    .area-title { font-size: 1.4rem; font-weight: 700; color: #0f172a; }
     
-    .coin-list { max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; }
-    .category-section { margin-bottom: 16px; }
-    .category-header { 
-      padding: 8px 12px; 
-      background: #f8fafc; 
-      font-weight: 700; 
-      color: #0f172a; 
-      font-size: 0.9rem; 
-      border-bottom: 2px solid #e2e8f0;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .category-coins { max-height: 200px; overflow-y: auto; }
-    .coin-item { display: flex; align-items: center; padding: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
+    .swap-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-weight: 600; color: #374151; font-size: 0.9rem; }
+    .form-input { padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; transition: border-color 0.2s; }
+    .form-input:focus { outline: none; border-color: #22c55e; }
+    .search-input { padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; width: 100%; }
+    
+    .coin-selector { position: relative; }
+    .coin-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e5e7eb; border-radius: 10px; max-height: 240px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .coin-list.open { display: block; }
+    .coin-item { display: flex; align-items: center; padding: 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
     .coin-item:hover { background: #f8fafc; }
     .coin-item.selected { background: #f0fdf4; }
-    .coin-item img { width: 32px; height: 32px; border-radius: 50%; margin-right: 12px; }
+    .coin-item img { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; }
     .coin-info { flex: 1; }
-    .coin-name { font-weight: 600; color: #0f172a; }
-    .coin-symbol { color: #64748b; font-size: 0.85rem; }
-    .coin-price { text-align: right; }
-    .price-value { font-weight: 700; color: #0f172a; }
-    .price-change { font-size: 0.85rem; }
-    .price-change.positive { color: #16a34a; }
-    .price-change.negative { color: #ef4444; }
+    .coin-name { font-weight: 600; color: #0f172a; font-size: 0.9rem; }
+    .coin-symbol { color: #64748b; font-size: 0.8rem; }
     
-    .wallet-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .balance-box { padding: 12px; background: #f8fafc; border-radius: 8px; text-align: center; }
-    .balance-label { font-size: 0.85rem; color: #64748b; margin-bottom: 4px; }
-    .balance-amount { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+    .balance-display { background: rgba(255,255,255,0.8); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+    .balance-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .balance-label { font-size: 0.85rem; color: #64748b; }
+    .balance-value { font-weight: 600; color: #0f172a; }
     
-    .swap-section { padding: 80px 0 60px; min-height: calc(100vh - 200px); }
-    .swap-container { max-width: 600px; margin: 0 auto; }
-    .page-title { text-align: center; font-size: 2.2rem; color: #0f172a; margin-bottom: 8px; }
-    .section-content { display: none; }
-    .section-content.active { display: block; }
-    .swap-box { border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .swap-box:focus-within { border-color: #22c55e; }
-    .swap-label { font-size: 0.85rem; color: #64748b; margin-bottom: 8px; font-weight: 600; }
-    .swap-input-group { display: flex; align-items: center; gap: 12px; }
-    .swap-input { flex: 1; border: none; font-size: 1.2rem; font-weight: 700; color: #0f172a; outline: none; }
-    .swap-input::placeholder { color: #cbd5e1; }
-    .coin-select { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    .coin-select img { width: 24px; height: 24px; border-radius: 50%; }
+    .summary-box { background: rgba(255,255,255,0.8); border-radius: 10px; padding: 16px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .summary-label { color: #64748b; font-size: 0.9rem; }
+    .summary-value { font-weight: 600; color: #0f172a; }
     
-    .swap-arrow { display: flex; justify-content: center; margin: 8px 0; }
-    .swap-arrow-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e2e8f0; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-    .swap-arrow-btn:hover { border-color: #22c55e; color: #22c55e; }
+    .action-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .action-btn.buy { background: #22c55e; color: white; }
+    .action-btn.buy:hover { background: #16a34a; }
+    .action-btn.sell { background: #ef4444; color: white; }
+    .action-btn.sell:hover { background: #dc2626; }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     
-    .swap-info { display: flex; justify-content: space-between; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 16px; }
-    .info-item { text-align: center; }
-    .info-label { font-size: 0.85rem; color: #64748b; }
-    .info-value { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+    .wallet-info { background: rgba(255,255,255,0.9); border-radius: 10px; padding: 16px; margin-bottom: 24px; border: 1px solid #e5e7eb; }
+    .wallet-address { font-family: monospace; font-size: 0.9rem; color: #64748b; margin-bottom: 8px; }
+    .disconnect-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
     
-    .swap-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #22c55e; color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 20px; }
-    .swap-btn:hover { background: #16a34a; }
-    .swap-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    footer { background: #0f172a; color: white; padding: 40px 0 20px; text-align: center; }
+    .footer-links { margin: 16px 0; }
+    .footer-links a { color: #94a3b8; text-decoration: none; margin: 0 12px; }
+    .footer-links a:hover { color: #22c55e; }
     
-    .balance { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
+    @media (max-width: 1024px) {
+      .swap-container { grid-template-columns: 1fr; }
+    }
     
-    .footer-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin: 20px 0; }
-    footer { background: #0f172a; color: white; text-align: center; padding: 50px 0 30px; }
-    footer a { color: #94a3b8; text-decoration: none; }
-    
-    @media (max-width: 860px) {
+    @media (max-width: 768px) {
       .mobile-menu-btn { display: block; }
       .nav-links { position: fixed; top: 62px; left: -100%; width: 100%; height: calc(100vh - 62px); background: #0f172a; flex-direction: column; align-items: center; padding-top: 40px; transition: left 0.25s ease; }
       .nav-links.active { left: 0; }
       .page-title { font-size: 1.8rem; }
+      .wallet-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -138,115 +121,115 @@
 
   <section class="swap-section">
     <div class="container">
+      <h1 class="page-title">Real-Time Crypto Swap</h1>
+      <p class="page-subtitle">Buy and sell any cryptocurrency at live market prices with instant execution</p>
+      
+      <div id="walletInfo" class="wallet-info" style="display: none;">
+        <div class="wallet-address" id="walletAddress"></div>
+        <button class="disconnect-btn" onclick="disconnectWallet()">Disconnect Wallet</button>
+      </div>
+      
       <div class="swap-container">
-        <h1 class="page-title">Buy & Sell Crypto</h1>
-        <p class="page-subtitle">Trade any cryptocurrency with real-time prices</p>
-        
-        <div class="buy-sell-tabs">
-          <button class="tab-btn active" onclick="switchTab('buy')">🟢 Buy Crypto</button>
-          <button class="tab-btn sell" onclick="switchTab('sell')">🔴 Sell Crypto</button>
+        <!-- BUY AREA -->
+        <div class="buy-area">
+          <div class="area-header">
+            <div class="area-icon">🟢</div>
+            <h2 class="area-title">Buy Crypto</h2>
+          </div>
+          
+          <div class="balance-display">
+            <div class="balance-row">
+              <span class="balance-label">Available Balance:</span>
+              <span class="balance-value" id="buyBalance">$0.00</span>
+            </div>
+          </div>
+          
+          <form class="swap-form">
+            <div class="form-group">
+              <label class="form-label">Select Cryptocurrency to Buy</label>
+              <div class="coin-selector">
+                <input type="text" class="form-input" placeholder="Search coins..." id="buySearchInput" onfocus="openCoinList('buy')" oninput="searchCoins('buy')">
+                <div class="coin-list" id="buyCoinList"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Amount to Spend (USD)</label>
+              <input type="number" class="form-input" placeholder="0.00" id="buyAmount" oninput="calculateBuyTotal()">
+            </div>
+            
+            <div class="summary-box">
+              <div class="summary-row">
+                <span class="summary-label">You will receive</span>
+                <span class="summary-value" id="buyReceive">0 BTC</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Current Price</span>
+                <span class="summary-value" id="buyPrice">$0.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Network Fee</span>
+                <span class="summary-value" id="buyGasFee">$0.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Total Cost</span>
+                <span class="summary-value" id="buyTotal">$0.00</span>
+              </div>
+            </div>
+            
+            <button type="button" class="action-btn buy" id="buyBtn" onclick="executeBuy()">Connect Wallet to Buy</button>
+          </form>
         </div>
         
-        <!-- Buy Section -->
-        <div id="buySection" class="section-content active">
-          <div class="swap-card buy-card">
-            <div class="wallet-balances">
-              <div class="balance-box">
-                <div class="balance-label">Available Balance</div>
-                <div class="balance-amount" id="buyBalance">$0.00</div>
-              </div>
-              <div class="balance-box">
-                <div class="balance-label">Gas Fee</div>
-                <div class="balance-amount" id="buyGasFee">$0.00</div>
-              </div>
-            </div>
-            
-            <div class="coin-search">
-              <span class="search-icon">🔍</span>
-              <input type="text" class="search-input" id="buySearchInput" placeholder="Search coins to buy..." oninput="searchCoins('buy')">
-            </div>
-            
-            <div class="coin-list" id="buyCoinList"></div>
-            
-            <div class="swap-box">
-              <div class="swap-label">Amount to Buy</div>
-              <div class="swap-input-group">
-                <input type="number" class="swap-input" id="buyAmount" placeholder="0.00" oninput="calculateBuyTotal()">
-                <div class="coin-select">
-                  <img src="https://assets.coingecko.com/coins/images/325/large/Tether.png" alt="USDC" />
-                  <span id="buyPaymentCoin">USDC</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="swap-info">
-              <div class="info-item">
-                <div class="info-label">You Receive</div>
-                <div class="info-value" id="buyReceive">0 BTC</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Price</div>
-                <div class="info-value" id="buyPrice">$0</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Total Cost</div>
-                <div class="info-value" id="buyTotal">$0.00</div>
-              </div>
-            </div>
-            
-            <button class="swap-btn" id="buyBtn" onclick="executeBuy()">Connect Wallet to Buy</button>
+        <!-- SELL AREA -->
+        <div class="sell-area">
+          <div class="area-header">
+            <div class="area-icon">🔴</div>
+            <h2 class="area-title">Sell Crypto</h2>
           </div>
-        </div>
-        
-        <!-- Sell Section -->
-        <div id="sellSection" class="section-content">
-          <div class="swap-card sell-card">
-            <div class="wallet-balances">
-              <div class="balance-box">
-                <div class="balance-label">Your Holdings</div>
-                <div class="balance-amount" id="sellBalance">0 BTC</div>
-              </div>
-              <div class="balance-box">
-                <div class="balance-label">Gas Fee</div>
-                <div class="balance-amount" id="sellGasFee">$0.00</div>
-              </div>
+          
+          <div class="balance-display">
+            <div class="balance-row">
+              <span class="summary-label">Your Holdings:</span>
+              <span class="summary-value" id="sellHoldings">Connect wallet to see</span>
             </div>
-            
-            <div class="coin-search">
-              <span class="search-icon">🔍</span>
-              <input type="text" class="search-input" id="sellSearchInput" placeholder="Search coins to sell..." oninput="searchCoins('sell')">
-            </div>
-            
-            <div class="coin-list" id="sellCoinList"></div>
-            
-            <div class="swap-box">
-              <div class="swap-label">Amount to Sell</div>
-              <div class="swap-input-group">
-                <input type="number" class="swap-input" id="sellAmount" placeholder="0.00" oninput="calculateSellTotal()">
-                <div class="coin-select">
-                  <img src="https://assets.coingecko.com/coins/images/325/large/Tether.png" alt="USDC" />
-                  <span id="sellReceiveCoin">USDC</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="swap-info">
-              <div class="info-item">
-                <div class="info-label">You Sell</div>
-                <div class="info-value" id="sellFromAmount">0 BTC</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Price</div>
-                <div class="info-value" id="sellPrice">$0</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">You Receive</div>
-                <div class="info-value" id="sellReceive">$0.00</div>
-              </div>
-            </div>
-            
-            <button class="swap-btn" id="sellBtn" onclick="executeSell()">Connect Wallet to Sell</button>
           </div>
+          
+          <form class="swap-form">
+            <div class="form-group">
+              <label class="form-label">Select Cryptocurrency to Sell</label>
+              <div class="coin-selector">
+                <input type="text" class="form-input" placeholder="Search coins..." id="sellSearchInput" onfocus="openCoinList('sell')" oninput="searchCoins('sell')">
+                <div class="coin-list" id="sellCoinList"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Amount to Sell</label>
+              <input type="number" class="form-input" placeholder="0.00" id="sellAmount" oninput="calculateSellTotal()">
+            </div>
+            
+            <div class="summary-box">
+              <div class="summary-row">
+                <span class="summary-label">You will receive</span>
+                <span class="summary-value" id="sellReceive">$0.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Current Price</span>
+                <span class="summary-value" id="sellPrice">$0.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Network Fee</span>
+                <span class="summary-value" id="sellGasFee">$0.00</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Total Amount</span>
+                <span class="summary-value" id="sellTotal">$0.00</span>
+              </div>
+            </div>
+            
+            <button type="button" class="action-btn sell" id="sellBtn" onclick="executeSell()">Connect Wallet to Sell</button>
+          </form>
         </div>
       </div>
     </div>
@@ -279,8 +262,46 @@
     </div>
   </div>
 
-  <script src="components/wallet.js"></script>
   <script>
+    // Wallet state management
+    let walletState = {
+      connected: false,
+      address: '',
+      provider: null,
+      balances: {}
+    };
+
+    // Load wallet state from localStorage on page load
+    function loadWalletState() {
+      try {
+        const saved = localStorage.getItem('cryptoPortfolio_wallet');
+        if (saved) {
+          const state = JSON.parse(saved);
+          walletState = { ...walletState, ...state };
+          if (walletState.connected && walletState.address) {
+            updateWalletUI();
+            fetchWalletBalances();
+          }
+        }
+      } catch (error) {
+        console.error('Error loading wallet state:', error);
+      }
+    }
+
+    // Save wallet state to localStorage
+    function saveWalletState() {
+      try {
+        localStorage.setItem('cryptoPortfolio_wallet', JSON.stringify({
+          connected: walletState.connected,
+          address: walletState.address,
+          timestamp: Date.now()
+        }));
+      } catch (error) {
+        console.error('Error saving wallet state:', error);
+      }
+    }
+
+    // Mobile menu
     const navLinks = document.getElementById('navLinks');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     mobileMenuBtn.addEventListener('click', () => {
@@ -288,140 +309,69 @@
       mobileMenuBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
     });
 
-    // Wallet UI Management
+    // Wallet modal elements
     const navConnectBtn = document.getElementById('navConnectBtn');
     const walletModal = document.getElementById('walletModal');
     const walletStatus = document.getElementById('walletStatus');
     const closeWalletModal = document.getElementById('closeWalletModal');
+    const walletInfo = document.getElementById('walletInfo');
+    const walletAddress = document.getElementById('walletAddress');
 
-    // Update wallet button UI
+    document.getElementById('closeWalletModal').addEventListener('click', () => walletModal.classList.remove('open'));
+    navConnectBtn.addEventListener('click', () => walletModal.classList.add('open'));
+
+    // Update wallet UI based on connection state
     function updateWalletUI() {
-      const walletInfo = window.walletManager.getWalletInfo();
-      
-      if (walletInfo.connected) {
-        navConnectBtn.textContent = walletInfo.shortAddress;
+      if (walletState.connected) {
+        navConnectBtn.textContent = walletState.address.slice(0, 6) + '...' + walletState.address.slice(-4);
         navConnectBtn.classList.add('connected');
-        navConnectBtn.onclick = () => showWalletInfo();
+        walletInfo.style.display = 'block';
+        walletAddress.textContent = 'Connected: ' + walletState.address;
         
         document.getElementById('buyBtn').textContent = 'Buy Now';
         document.getElementById('sellBtn').textContent = 'Sell Now';
         
-        // Fetch initial balances
-        window.walletManager.fetchWalletBalances();
-        
-        // Set up balance refresh
-        setInterval(() => window.walletManager.fetchWalletBalances(), 10000); // Refresh every 10 seconds
+        updateBalanceDisplay();
       } else {
         navConnectBtn.textContent = 'Connect Wallet';
         navConnectBtn.classList.remove('connected');
-        navConnectBtn.onclick = () => walletModal.classList.add('open');
+        walletInfo.style.display = 'none';
         
         document.getElementById('buyBtn').textContent = 'Connect Wallet to Buy';
         document.getElementById('sellBtn').textContent = 'Connect Wallet to Sell';
         
         document.getElementById('buyBalance').textContent = '$0.00';
-        document.getElementById('sellBalance').textContent = '0 BTC';
+        document.getElementById('sellHoldings').textContent = 'Connect wallet to see';
       }
     }
-
-    // Show wallet info modal with disconnect option
-    function showWalletInfo() {
-      const walletInfo = window.walletManager.getWalletInfo();
-      const balances = walletInfo.balances;
-      
-      // Create balance display
-      let balanceHTML = '';
-      if (Object.keys(balances).length > 0) {
-        balanceHTML = '<div style="margin-top: 16px;"><strong>Your Balances:</strong><ul style="margin: 8px 0; padding-left: 20px;">';
-        Object.entries(balances).forEach(([symbol, balance]) => {
-          if (balance > 0) {
-            balanceHTML += `<li>${balance.toFixed(4)} ${symbol}</li>`;
-          }
-        });
-        balanceHTML += '</ul></div>';
-      }
-      
-      walletModal.innerHTML = `
-        <div class="wallet-box">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong>Wallet Connected</strong>
-            <button id="closeWalletModal" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button>
-          </div>
-          <p style="color:#64748b;font-size:0.92rem;margin-top:6px;">Address: ${walletInfo.address}</p>
-          ${balanceHTML}
-          <div style="margin-top: 16px;">
-            <button onclick="disconnectWallet()" style="width:100%;padding:10px;border:2px solid #ef4444;background:white;color:#ef4444;border-radius:8px;font-weight:600;cursor:pointer;">
-              Disconnect Wallet
-            </button>
-          </div>
-        </div>
-      `;
-      
-      walletModal.classList.add('open');
-      document.getElementById('closeWalletModal').addEventListener('click', () => walletModal.classList.remove('open'));
-    }
-
-    // Disconnect wallet
-    async function disconnectWallet() {
-      await window.walletManager.disconnectWallet();
-      walletModal.classList.remove('open');
-      updateWalletUI();
-    }
-
-    // Connect wallet function
-    async function connectWallet(walletKey) {
-      const connected = await window.walletManager.connectWallet(walletKey);
-      if (connected) {
-        walletModal.classList.remove('open');
-        updateWalletUI();
-      } else {
-        walletStatus.textContent = 'Wallet connection failed.';
-      }
-    }
-
-    // Listen for wallet events
-    window.walletManager.addListener((event, data) => {
-      console.log('Wallet event:', event, data);
-      updateWalletUI();
-      
-      if (event === 'balancesUpdated') {
-        updateBalanceDisplay();
-      }
-      
-      if (event === 'error') {
-        walletStatus.textContent = data.message;
-      }
-    });
 
     // Update balance display
     function updateBalanceDisplay() {
-      const walletInfo = window.walletManager.getWalletInfo();
-      const balances = walletInfo.balances;
+      if (!walletState.connected) return;
       
-      if (walletInfo.connected) {
-        // Update buy balance (USDC + USDT)
-        const usdcBalance = balances.USDC || 0;
-        const usdtBalance = balances.USDT || 0;
-        const totalStablecoins = usdcBalance + usdtBalance;
-        document.getElementById('buyBalance').textContent = `$${totalStablecoins.toFixed(2)}`;
+      // Update buy balance (USDC + USDT)
+      const usdcBalance = walletState.balances.USDC || 0;
+      const usdtBalance = walletState.balances.USDT || 0;
+      const totalStablecoins = usdcBalance + usdtBalance;
+      document.getElementById('buyBalance').textContent = `$${totalStablecoins.toFixed(2)}`;
 
-        // Update sell holdings
-        const holdings = Object.entries(balances)
-          .filter(([symbol, balance]) => balance > 0 && symbol !== 'USDC' && symbol !== 'USDT')
-          .map(([symbol, balance]) => `${balance.toFixed(4)} ${symbol}`)
-          .join(', ') || 'No holdings';
-        
-        document.getElementById('sellBalance').textContent = holdings;
-      }
+      // Update sell holdings
+      const holdings = Object.entries(walletState.balances)
+        .filter(([symbol, balance]) => balance > 0 && symbol !== 'USDC' && symbol !== 'USDT')
+        .map(([symbol, balance]) => `${balance.toFixed(4)} ${symbol}`)
+        .join(', ') || 'No holdings';
+      
+      document.getElementById('sellHoldings').textContent = holdings;
     }
 
-    // Initialize wallet UI
-    updateWalletUI();
+    // Disconnect wallet
+    function disconnectWallet() {
+      walletState = { connected: false, address: '', provider: null, balances: {} };
+      localStorage.removeItem('cryptoPortfolio_wallet');
+      updateWalletUI();
+    }
 
-    // Close modal handlers
-    closeWalletModal.addEventListener('click', () => walletModal.classList.remove('open'));
-
-    // Wallet option handlers
+    // Wallet connection functions
     function allEvmProviders() {
       if (!window.ethereum) return [];
       return Array.isArray(window.ethereum.providers) ? window.ethereum.providers : [window.ethereum];
@@ -435,344 +385,218 @@
       if (walletKey === 'rabby') window.open('https://rabby.io/', '_blank');
     }
 
-    // Update wallet option handlers
-    document.querySelectorAll('.wallet-option').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const walletKey = btn.dataset.wallet;
-        
+    async function connectWallet(walletKey) {
+      try {
         if (walletKey === 'phantom' && window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) {
-          // Handle Phantom (Solana) wallet
-          window.phantom.solana.connect().then((resp) => {
-            navConnectBtn.textContent = resp.publicKey.toString().slice(0, 6) + '...' + resp.publicKey.toString().slice(-4);
-            navConnectBtn.classList.add('connected');
-            walletStatus.textContent = 'Connected Phantom: ' + resp.publicKey.toString();
-            walletModal.classList.remove('open');
-          }).catch((e) => {
-            walletStatus.textContent = 'Phantom connection failed.';
-          });
-        } else {
-          // Handle EVM wallets
-          connectWallet(walletKey);
+          const resp = await window.phantom.solana.connect();
+          walletState.connected = true;
+          walletState.address = resp.publicKey.toString();
+          walletState.provider = window.phantom.solana;
+          saveWalletState();
+          updateWalletUI();
+          walletStatus.textContent = 'Connected Phantom: ' + resp.publicKey.toString();
+          walletModal.classList.remove('open');
+          return;
         }
-      });
+
+        const providers = allEvmProviders();
+        let provider = providers[0];
+        if (walletKey === 'metamask') provider = providers.find((p) => p.isMetaMask) || provider;
+        if (walletKey === 'rabby') provider = providers.find((p) => p.isRabby) || provider;
+        if (walletKey === 'okx') provider = providers.find((p) => p.isOkxWallet || p.isOKXWallet || p.isOkexWallet) || provider;
+        if (!provider) {
+          walletStatus.textContent = 'Extension not detected. Opening mobile/app link...';
+          openMobileWallet(walletKey);
+          return;
+        }
+        
+        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+        const address = accounts[0] || '';
+        if (address) {
+          walletState.connected = true;
+          walletState.address = address;
+          walletState.provider = provider;
+          saveWalletState();
+          updateWalletUI();
+          walletStatus.textContent = 'Connected: ' + address;
+          walletModal.classList.remove('open');
+          
+          // Set up event listeners
+          provider.on('accountsChanged', (accounts) => {
+            if (accounts.length === 0) {
+              disconnectWallet();
+            } else {
+              walletState.address = accounts[0];
+              saveWalletState();
+              updateWalletUI();
+            }
+          });
+          
+          provider.on('chainChanged', () => {
+            fetchWalletBalances();
+          });
+          
+          fetchWalletBalances();
+        }
+      } catch (e) {
+        walletStatus.textContent = 'Wallet connection failed.';
+      }
+    }
+
+    document.querySelectorAll('.wallet-option').forEach((btn) => {
+      btn.addEventListener('click', () => connectWallet(btn.dataset.wallet));
     });
 
-    // Essential variables
-    let selectedBuyCoin = null;
-    let selectedSellCoin = null;
-
-    // Token contracts and coin mappings
+    // Token contracts for balance fetching
     const TOKEN_CONTRACTS = {
-      USDC: { 
-        address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8',
-        decimals: 6,
-        chainId: 1
-      },
-      USDT: { 
-        address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        decimals: 6,
-        chainId: 1
-      },
-      WETH: { 
-        address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        decimals: 18,
-        chainId: 1
-      },
-      WBTC: { 
-        address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-        decimals: 8,
-        chainId: 1
-      },
-      ETH: { 
-        address: null, // Native ETH
-        decimals: 18,
-        chainId: 1
+      USDC: { address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
+      USDT: { address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
+      WETH: { address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', decimals: 18 },
+      WBTC: { address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8 },
+      ETH: { address: null, decimals: 18 }
+    };
+
+    // Fetch real wallet balances
+    async function fetchWalletBalances() {
+      if (!walletState.connected || !walletState.provider) return;
+      
+      try {
+        // Get ETH balance
+        const ethBalance = await walletState.provider.request({
+          method: 'eth_getBalance',
+          params: [walletState.address, 'latest']
+        });
+        walletState.balances.ETH = parseFloat(ethBalance || '0') / 1e18;
+
+        // Get ERC20 token balances
+        for (const [symbol, tokenInfo] of Object.entries(TOKEN_CONTRACTS)) {
+          if (symbol === 'ETH' || !tokenInfo.address) continue;
+          
+          try {
+            const balanceData = await walletState.provider.request({
+              method: 'eth_call',
+              params: [{
+                to: tokenInfo.address,
+                data: '0x70a08231' + walletState.address.slice(2).padStart(64, '0')
+              }, 'latest']
+            });
+            
+            const balance = balanceData || '0x0';
+            const decimals = tokenInfo.decimals;
+            walletState.balances[symbol] = parseFloat(balance) / Math.pow(10, decimals);
+          } catch (error) {
+            console.error(`Error fetching ${symbol} balance:`, error);
+            walletState.balances[symbol] = 0;
+          }
+        }
+        
+        updateBalanceDisplay();
+      } catch (error) {
+        console.error('Error fetching wallet balances:', error);
       }
-    };
+    }
 
-    const COIN_MAPPINGS = {
-      'bitcoin': { symbol: 'BTC', address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8 },
-      'ethereum': { symbol: 'ETH', address: null, decimals: 18 },
-      'tether': { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
-      'usd-coin': { symbol: 'USDC', address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
-      'binancecoin': { symbol: 'BNB', address: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52', decimals: 18 },
-      'solana': { symbol: 'SOL', address: '0xD31a59c85ae9D8dfec12d4422399843D80c6566a', decimals: 18 },
-      'ripple': { symbol: 'XRP', address: '0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE', decimals: 6 },
-      'cardano': { symbol: 'ADA', address: '0x3EE8A20A4B0f3ECb5B1e0A8D72e3c8C9f8e8C8e8', decimals: 18 },
-      'dogecoin': { symbol: 'DOGE', address: '0x4206931337DC273a6bD5D3D9e0D7C4e0A7b7C3e9', decimals: 8 },
-      'polkadot-new': { symbol: 'DOT', address: '0x7083609fCE4d1d8Dc0C979AAb8c869Ea2C873402', decimals: 10 },
-      'avalanche-2': { symbol: 'AVAX', address: '0xB31f66AA3C1e57E305Bb4522F7F0c8d8d8d8d8d', decimals: 18 },
-      'chainlink': { symbol: 'LINK', address: '0x5149107717091b6a7A2d2f0a4e2D8d8d8d8d8d', decimals: 18 },
-      'polygon-ecosystem-token': { symbol: 'POL', address: '0x45232Be4c1d6B39d0d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'uniswap': { symbol: 'UNI', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984', decimals: 18 },
-      'litecoin': { symbol: 'LTC', address: '0x4338665cBB7B2485A8855A139575FeD5D5d5d5d5d', decimals: 8 },
-      'stellar': { symbol: 'XLM', address: '0x833589fFB6bf3A5c2c8d8d8d8d8d8d8d8d8d8d8d', decimals: 7 },
-      'monero': { symbol: 'XMR', address: '0x4C2aB8C8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 12 },
-      'cosmos': { symbol: 'ATOM', address: '0x8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d8d', decimals: 6 },
-      'aave': { symbol: 'AAVE', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9', decimals: 18 },
-      'compound': { symbol: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26808', decimals: 18 },
-      'maker': { symbol: 'MKR', address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', decimals: 18 },
-      'synthetix-network-token': { symbol: 'SNX', address: '0xC011a73ee85760591E40D632059B64448ff1e678', decimals: 18 },
-      'curve-dao-token': { symbol: 'CRV', address: '0xD533a949740bb3306d119CC777fa900bA034cd13', decimals: 18 },
-      'sushi': { symbol: 'SUSHI', address: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2', decimals: 18 },
-      'yearn-finance': { symbol: 'YFI', address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', decimals: 18 },
-      'balancer': { symbol: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D', decimals: 18 },
-      '1inch': { symbol: '1INCH', address: '0x111111125421cA6dc452d289314280a0f8842A65', decimals: 18 },
-      'axie-infinity': { symbol: 'AXS', address: '0xBB0E17EF65F82Ab018d8EDd776e8979800c4D2Bc', decimals: 18 },
-      'the-sandbox': { symbol: 'SAND', address: '0x3845badAde8e6dFF049820680d1B14dA089668A3', decimals: 18 },
-      'decentraland': { symbol: 'MANA', address: '0x0F5D2fB29fb7d3C785374F7b362aD8d8d8d8d8d', decimals: 18 },
-      'enjincoin': { symbol: 'ENJ', address: '0xF629c45d8d6C9614aE37322bF3d8d8d8d8d8d8d', decimals: 18 },
-      'gala': { symbol: 'GALA', address: '0x15D4c048F83Db7a3A4934A4Ae8d8d8d8d8d8d8d', decimals: 18 },
-      'ape-coin': { symbol: 'APE', address: '0x4d224452801ACEd8B2F0AEb1551558d8d8d8d8d8d', decimals: 18 },
-      'arbitrum': { symbol: 'ARB', address: '0x912CE59144191C1204E64559FE8253a0e49E6548', decimals: 18 },
-      'optimism': { symbol: 'OP', address: '0x4200000000000000000000000000000000000042', decimals: 18 },
-      'polygon': { symbol: 'MATIC', address: '0x7D1AfA7B718fb892d6d8d8d8d8d8d8d8d8d8d8d8d', decimals: 18 },
-      'shiba-inu': { symbol: 'SHIB', address: '0x95aD61b0a150d79219dCF64E1E6C01bf0B8C8C8d', decimals: 18 },
-      'pepe': { symbol: 'PEPE', address: '0x6982508145454B6e8E24842479B7c8d8d8d8d8d', decimals: 18 },
-      'dai': { symbol: 'DAI', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 }
-    };
-
-    // Relay.link integration (hidden from UI)
+    // Relay.link integration (hidden)
     const RELAY_CONFIG = {
       baseUrl: 'https://api.relay.link',
       apiKey: 'hidden_key',
-      supportedChains: ['ethereum', 'polygon', 'bsc', 'arbitrum'],
-      liquiditySources: ['uniswap', 'curve', 'balancer', 'sushiswap']
+      supportedChains: ['ethereum', 'polygon', 'bsc', 'arbitrum']
     };
 
-    // Fetch real-time prices from multiple sources (including relay.link)
+    // Fetch real-time prices from CoinGecko
     async function fetchRealTimePrices() {
       try {
-        const cgResponse = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h');
-        const cgData = await cgResponse.json();
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h');
+        const data = await response.json();
         
-        try {
-          const relayResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/quotes`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
-            },
-            body: JSON.stringify({
-              chainId: 1,
-              sellToken: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8',
-              buyToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-              sellAmount: '1000000000'
-            })
-          });
-        } catch (relayError) {
-          console.log('Relay.link quote failed (expected for demo):', relayError.message);
-        }
-        
-        return cgData.map(coin => {
-          const mapping = COIN_MAPPINGS[coin.id] || {};
-          
-          return {
-            id: coin.id,
-            name: coin.name,
-            symbol: (coin.symbol || '').toUpperCase(),
-            image: coin.image,
-            current_price: coin.current_price || 0,
-            price_change_percentage_24h: coin.price_change_percentage_24h || 0,
-            liquidity: Math.random() * 1000000,
-            relayAvailable: true,
-            contractAddress: mapping.address || null,
-            decimals: mapping.decimals || 18,
-            category: getCoinCategory(coin.id)
-          };
-        });
+        return data.map(coin => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol.toUpperCase(),
+          image: coin.image,
+          price: coin.current_price || 0,
+          change24h: coin.price_change_percentage_24h || 0
+        }));
       } catch (error) {
         console.error('Error fetching prices:', error);
         return [];
       }
     }
 
-    // Categorize coins for better organization
-    function getCoinCategory(coinId) {
-      const categories = {
-        'bitcoin': '🥇 Top Coins',
-        'ethereum': '🥇 Top Coins',
-        'tether': '💰 Stablecoins',
-        'usd-coin': '💰 Stablecoins',
-        'binancecoin': '🥇 Top Coins',
-        'solana': '🥇 Top Coins',
-        'ripple': '🥇 Top Coins',
-        'cardano': '🥇 Top Coins',
-        'dogecoin': '🐕 Meme Coins',
-        'polkadot-new': '🥇 Top Coins',
-        'avalanche-2': '🔷 Layer 1',
-        'chainlink': '🔗 Oracles',
-        'aave': '🏦 DeFi',
-        'compound': '🏦 DeFi',
-        'maker': '🏦 DeFi',
-        'uniswap': '🏦 DeFi',
-        'shiba-inu': '🐕 Meme Coins',
-        'pepe': '🐕 Meme Coins',
-        'dai': '� Stablecoins'
-      };
-      
-      return categories[coinId] || '📈 Other';
+    // Initialize coins data
+    let allCoins = [];
+    let selectedBuyCoin = null;
+    let selectedSellCoin = null;
+
+    async function initializeCoins() {
+      allCoins = await fetchRealTimePrices();
+      displayCoins('buy', allCoins);
+      displayCoins('sell', allCoins);
     }
 
-    // Initialize coin lists
-    async function initializeCoinLists() {
-      const coins = await fetchRealTimePrices();
-      displayCoins('buy', coins);
-      displayCoins('sell', coins);
+    function openCoinList(type) {
+      const listId = type === 'buy' ? 'buyCoinList' : 'sellCoinList';
+      const list = document.getElementById(listId);
+      list.classList.add('open');
     }
 
     function displayCoins(type, coins) {
       const listId = type === 'buy' ? 'buyCoinList' : 'sellCoinList';
-      const listElement = document.getElementById(listId);
+      const list = document.getElementById(listId);
       
-      const groupedCoins = {};
-      coins.forEach(coin => {
-        const category = coin.category || '📈 Other';
-        if (!groupedCoins[category]) {
-          groupedCoins[category] = [];
-        }
-        groupedCoins[category].push(coin);
-      });
-      
-      const sortedCategories = Object.keys(groupedCoins).sort();
-      
-      let html = '';
-      sortedCategories.forEach(category => {
-        const categoryCoins = groupedCoins[category].sort((a, b) => b.current_price - a.current_price);
-        
-        html += `<div class="category-section">
-          <div class="category-header">${category}</div>
-          <div class="category-coins">`;
-        
-        categoryCoins.forEach(coin => {
-          const id = coin.id || 'unknown';
-          const name = coin.name || 'Unknown Coin';
-          const symbol = (coin.symbol || '').toUpperCase();
-          const image = coin.image || 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png';
-          const price = coin.current_price || 0;
-          const change = coin.price_change_percentage_24h || 0;
-          
-          html += `
-            <div class="coin-item" onclick="selectCoin('${type}', '${id}', '${symbol}', '${name}', ${price}, '${image}')">
-              <img src="${image}" alt="${symbol}" />
-              <div class="coin-info">
-                <div class="coin-name">${name}</div>
-                <div class="coin-symbol">${symbol}</div>
-              </div>
-              <div class="coin-price">
-                <div class="price-value">$${price.toLocaleString()}</div>
-                <div class="price-change ${change >= 0 ? 'positive' : 'negative'}">
-                  ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
-                </div>
-              </div>
+      list.innerHTML = coins.slice(0, 50).map(coin => `
+        <div class="coin-item" onclick="selectCoin('${type}', '${coin.id}', '${coin.symbol}', '${coin.name}', ${coin.price}, '${coin.image}')">
+          <img src="${coin.image}" alt="${coin.symbol}">
+          <div class="coin-info">
+            <div class="coin-name">${coin.name}</div>
+            <div class="coin-symbol">${coin.symbol}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 600;">$${coin.price.toLocaleString()}</div>
+            <div style="font-size: 0.8rem; color: ${coin.change24h >= 0 ? '#16a34a' : '#ef4444'};">
+              ${coin.change24h >= 0 ? '+' : ''}${coin.change24h.toFixed(2)}%
             </div>
-          `;
-        });
-        
-        html += `</div></div>`;
-      });
-      
-      listElement.innerHTML = html;
+          </div>
+        </div>
+      `).join('');
     }
 
     function searchCoins(type) {
       const searchInput = document.getElementById(type === 'buy' ? 'buySearchInput' : 'sellSearchInput');
       const searchTerm = searchInput.value.toLowerCase();
-      const coinItems = document.getElementById(type === 'buy' ? 'buyCoinList' : 'sellCoinList').children;
-      
-      Array.from(coinItems).forEach(item => {
-        const coinName = item.querySelector('.coin-name').textContent.toLowerCase();
-        const coinSymbol = item.querySelector('.coin-symbol').textContent.toLowerCase();
-        
-        if (coinName.includes(searchTerm) || coinSymbol.includes(searchTerm)) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
-        }
-      });
+      const filteredCoins = allCoins.filter(coin => 
+        coin.name.toLowerCase().includes(searchTerm) || 
+        coin.symbol.toLowerCase().includes(searchTerm)
+      );
+      displayCoins(type, filteredCoins);
     }
 
     function selectCoin(type, coinId, symbol, name, price, image) {
-      console.log('selectCoin called with:', { type, coinId, symbol, name, price, image });
-      
-      symbol = symbol || 'UNKNOWN';
-      name = name || symbol;
-      price = price || 0;
-      image = image || 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png';
-      
-      const mapping = COIN_MAPPINGS[coinId] || COIN_MAPPINGS[symbol.toLowerCase()];
-      const contractAddress = mapping ? mapping.address : null;
-      const decimals = mapping ? mapping.decimals : 18;
-      
-      const coinData = { 
-        symbol, 
-        name, 
-        price, 
-        image, 
-        contractAddress, 
-        decimals,
-        coinId 
-      };
-      
-      console.log('Processed coin data:', coinData);
-      
       if (type === 'buy') {
-        selectedBuyCoin = coinData;
-        document.getElementById('buyReceive').textContent = `0 ${symbol}`;
+        selectedBuyCoin = { coinId, symbol, name, price, image };
+        document.getElementById('buySearchInput').value = name;
         document.getElementById('buyPrice').textContent = `$${price.toLocaleString()}`;
-        
-        document.querySelectorAll('#buyCoinList .coin-item').forEach(item => {
-          item.classList.remove('selected');
-        });
-        if (event && event.currentTarget) {
-          event.currentTarget.classList.add('selected');
-        }
+        document.getElementById('buyCoinList').classList.remove('open');
       } else {
-        selectedSellCoin = coinData;
-        document.getElementById('sellFromAmount').textContent = `0 ${symbol}`;
+        selectedSellCoin = { coinId, symbol, name, price, image };
+        document.getElementById('sellSearchInput').value = name;
         document.getElementById('sellPrice').textContent = `$${price.toLocaleString()}`;
-        
-        document.querySelectorAll('#sellCoinList .coin-item').forEach(item => {
-          item.classList.remove('selected');
-        });
-        if (event && event.currentTarget) {
-          event.currentTarget.classList.add('selected');
-        }
+        document.getElementById('sellCoinList').classList.remove('open');
       }
       
       calculateTotals();
-    }
-
-    function switchTab(tab) {
-      const buySection = document.getElementById('buySection');
-      const sellSection = document.getElementById('sellSection');
-      const buyBtn = document.querySelector('.tab-btn:not(.sell)');
-      const sellBtn = document.querySelector('.tab-btn.sell');
-      
-      if (tab === 'buy') {
-        buySection.classList.add('active');
-        sellSection.classList.remove('active');
-        buyBtn.classList.add('active');
-        sellBtn.classList.remove('active');
-      } else {
-        sellSection.classList.add('active');
-        buySection.classList.remove('active');
-        sellBtn.classList.add('active');
-        buyBtn.classList.remove('active');
-      }
     }
 
     function calculateBuyTotal() {
       if (!selectedBuyCoin) return;
       
       const amount = parseFloat(document.getElementById('buyAmount').value) || 0;
-      const total = amount;
       const receiveAmount = amount / selectedBuyCoin.price;
       
       document.getElementById('buyReceive').textContent = `${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}`;
-      document.getElementById('buyTotal').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('buyTotal').textContent = `$${amount.toFixed(2)}`;
       
-      const gasFee = total * 0.001;
+      const gasFee = amount * 0.001; // 0.1% fee
       document.getElementById('buyGasFee').textContent = `$${gasFee.toFixed(2)}`;
     }
 
@@ -782,10 +606,10 @@
       const amount = parseFloat(document.getElementById('sellAmount').value) || 0;
       const total = amount * selectedSellCoin.price;
       
-      document.getElementById('sellFromAmount').textContent = `${amount} ${selectedSellCoin.symbol}`;
       document.getElementById('sellReceive').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('sellTotal').textContent = `$${total.toFixed(2)}`;
       
-      const gasFee = total * 0.001;
+      const gasFee = total * 0.001; // 0.1% fee
       document.getElementById('sellGasFee').textContent = `$${gasFee.toFixed(2)}`;
     }
 
@@ -794,173 +618,12 @@
       calculateSellTotal();
     }
 
-    // Execute buy through real wallet and relay.link
-    async function executeBuy() {
-      const walletInfo = window.walletManager.getWalletInfo();
-      if (!walletInfo.connected) {
-        const connected = await window.walletManager.connectWallet();
-        if (!connected) return;
-      }
-      
-      if (!selectedBuyCoin) {
-        alert('Please select a coin to buy.');
-        return;
-      }
-      
-      const amount = parseFloat(document.getElementById('buyAmount').value);
-      if (amount <= 0) {
-        alert('Please enter a valid amount.');
-        return;
-      }
-      
+    // Real swap execution using Relay.link (hidden integration)
+    async function executeRealSwap(tokenIn, tokenOut, amountIn) {
       try {
-        // Show loading state
-        const buyBtn = document.getElementById('buyBtn');
-        buyBtn.textContent = 'Processing...';
-        buyBtn.disabled = true;
+        const chainId = await walletState.provider.request({ method: 'eth_chainId' });
         
-        // Get token contracts
-        const tokenIn = TOKEN_CONTRACTS.USDC.address; // Buying with USDC
-        const tokenOut = selectedBuyCoin.contractAddress || TOKEN_CONTRACTS.WETH.address; // Use contract address or default to WETH
-        const amountIn = Math.floor(amount * 1e6); // USDC has 6 decimals
-        
-        console.log('Buy transaction:', {
-          tokenIn,
-          tokenOut,
-          amountIn,
-          coin: selectedBuyCoin
-        });
-        
-        // For native ETH, we need special handling
-        if (selectedBuyCoin.symbol === 'ETH' || !tokenOut) {
-          // Handle ETH purchase directly
-          const txHash = await window.walletManager.executeTransaction({
-            to: '0x0000000000000000000000000000000000000000', // ETH purchase router
-            data: '0x', // Would be actual swap data
-            value: amountIn,
-            gas: '0x5208',
-            gasPrice: await walletInfo.provider.request({ method: 'eth_gasPrice' })
-          });
-          
-          await window.walletManager.waitForTransaction(txHash);
-          await window.walletManager.fetchWalletBalances();
-          
-          const receiveAmount = amount / selectedBuyCoin.price;
-          alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
-        } else {
-          // Execute real swap for ERC20 tokens
-          const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, true);
-          await window.walletManager.waitForTransaction(txHash);
-          await window.walletManager.fetchWalletBalances();
-          
-          const receiveAmount = amount / selectedBuyCoin.price;
-          alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
-        }
-        
-        // Reset form
-        document.getElementById('buyAmount').value = '';
-        calculateBuyTotal();
-        
-      } catch (error) {
-        console.error('Buy transaction failed:', error);
-        alert('Transaction failed: ' + error.message);
-      } finally {
-        // Reset button
-        const buyBtn = document.getElementById('buyBtn');
-        buyBtn.textContent = 'Buy Now';
-        buyBtn.disabled = false;
-      }
-    }
-
-    // Execute sell through real wallet and relay.link
-    async function executeSell() {
-      const walletInfo = window.walletManager.getWalletInfo();
-      if (!walletInfo.connected) {
-        const connected = await window.walletManager.connectWallet();
-        if (!connected) return;
-      }
-      
-      if (!selectedSellCoin) {
-        alert('Please select a coin to sell.');
-        return;
-      }
-      
-      const amount = parseFloat(document.getElementById('sellAmount').value);
-      if (amount <= 0) {
-        alert('Please enter a valid amount.');
-        return;
-      }
-      
-      const currentBalance = walletInfo.balances[selectedSellCoin.symbol] || 0;
-      if (amount > currentBalance) {
-        alert(`Insufficient balance. You have ${currentBalance.toFixed(6)} ${selectedSellCoin.symbol}.`);
-        return;
-      }
-      
-      try {
-        // Show loading state
-        const sellBtn = document.getElementById('sellBtn');
-        sellBtn.textContent = 'Processing...';
-        sellBtn.disabled = true;
-        
-        // Get token contracts
-        const tokenIn = selectedSellCoin.contractAddress || TOKEN_CONTRACTS.WETH.address; // Use contract address or default to WETH
-        const tokenOut = TOKEN_CONTRACTS.USDC.address; // Selling for USDC
-        const decimals = selectedSellCoin.decimals || 18;
-        const amountIn = Math.floor(amount * Math.pow(10, decimals));
-        
-        console.log('Sell transaction:', {
-          tokenIn,
-          tokenOut,
-          amountIn,
-          decimals,
-          coin: selectedSellCoin
-        });
-        
-        // For native ETH, we need special handling
-        if (selectedSellCoin.symbol === 'ETH' || !tokenIn) {
-          // Handle ETH sale directly
-          const txHash = await window.walletManager.executeTransaction({
-            to: '0x0000000000000000000000000000000000000000', // ETH sale router
-            data: '0x', // Would be actual swap data
-            value: amountIn,
-            gas: '0x5208',
-            gasPrice: await walletInfo.provider.request({ method: 'eth_gasPrice' })
-          });
-          
-          await window.walletManager.waitForTransaction(txHash);
-          await window.walletManager.fetchWalletBalances();
-          
-          const receiveAmount = amount * selectedSellCoin.price;
-          alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
-        } else {
-          // Execute real swap for ERC20 tokens
-          const txHash = await executeRealSwap(tokenIn, tokenOut, amountIn, false);
-          await window.walletManager.waitForTransaction(txHash);
-          await window.walletManager.fetchWalletBalances();
-          
-          const receiveAmount = amount * selectedSellCoin.price;
-          alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
-        }
-        
-        // Reset form
-        document.getElementById('sellAmount').value = '';
-        calculateSellTotal();
-        
-      } catch (error) {
-        console.error('Sell transaction failed:', error);
-        alert('Transaction failed: ' + error.message);
-      } finally {
-        // Reset button
-        const sellBtn = document.getElementById('sellBtn');
-        sellBtn.textContent = 'Sell Now';
-        sellBtn.disabled = false;
-      }
-    }
-
-    // Real swap execution using Relay.link
-    async function executeRealSwap(tokenIn, tokenOut, amountIn, isBuy) {
-      try {
+        // Get quote from Relay.link (hidden)
         const quoteResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/quotes`, {
           method: 'POST',
           headers: {
@@ -968,17 +631,18 @@
             'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
           },
           body: JSON.stringify({
-            chainId: await window.walletManager.getWalletInfo().provider.request({ method: 'eth_chainId' }),
+            chainId: parseInt(chainId),
             sellToken: tokenIn,
             buyToken: tokenOut,
             sellAmount: amountIn.toString(),
             slippagePercentage: 0.5,
-            userWallet: window.walletManager.getWalletInfo().address
+            userWallet: walletState.address
           })
         });
 
         const quote = await quoteResponse.json();
 
+        // Get transaction data from Relay.link (hidden)
         const transactionResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/transactions`, {
           method: 'POST',
           headers: {
@@ -986,24 +650,28 @@
             'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
           },
           body: JSON.stringify({
-            chainId: await window.walletManager.getWalletInfo().provider.request({ method: 'eth_chainId' }),
+            chainId: parseInt(chainId),
             sellToken: tokenIn,
             buyToken: tokenOut,
             sellAmount: amountIn.toString(),
             slippagePercentage: 0.5,
-            userWallet: window.walletManager.getWalletInfo().address,
+            userWallet: walletState.address,
             quoteId: quote.quoteId
           })
         });
 
         const transaction = await transactionResponse.json();
 
-        const txHash = await window.walletManager.executeTransaction({
-          to: transaction.to,
-          data: transaction.data,
-          value: transaction.value || '0x0',
-          gas: transaction.gas || '0x5208',
-          gasPrice: transaction.gasPrice || '0x0'
+        // Execute transaction through wallet
+        const txHash = await walletState.provider.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            to: transaction.to,
+            data: transaction.data,
+            value: transaction.value || '0x0',
+            gas: transaction.gas || '0x5208',
+            gasPrice: transaction.gasPrice || '0x0'
+          }]
         });
 
         return txHash;
@@ -1013,27 +681,149 @@
       }
     }
 
-    // Wait for transaction confirmation using shared wallet manager
+    // Wait for transaction confirmation
     async function waitForTransaction(txHash) {
-      return await window.walletManager.waitForTransaction(txHash);
+      let receipt = null;
+      while (!receipt) {
+        try {
+          receipt = await walletState.provider.request({
+            method: 'eth_getTransactionReceipt',
+            params: [txHash]
+          });
+          
+          if (!receipt) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        } catch (error) {
+          console.error('Error checking transaction:', error);
+          break;
+        }
+      }
+      
+      if (!receipt || receipt.status === '0x0') {
+        throw new Error('Transaction failed');
+      }
+      
+      return receipt;
     }
+
+    async function executeBuy() {
+      if (!walletState.connected) {
+        walletModal.classList.add('open');
+        return;
+      }
+      
+      if (!selectedBuyCoin) {
+        alert('Please select a cryptocurrency to buy.');
+        return;
+      }
+      
+      const amount = parseFloat(document.getElementById('buyAmount').value);
+      if (!amount || amount <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+      
+      try {
+        const buyBtn = document.getElementById('buyBtn');
+        buyBtn.textContent = 'Processing...';
+        buyBtn.disabled = true;
+        
+        // Execute real swap using Relay.link (hidden)
+        const txHash = await executeRealSwap(
+          TOKEN_CONTRACTS.USDC.address, // USDC as input
+          TOKEN_CONTRACTS[selectedBuyCoin.symbol]?.address || TOKEN_CONTRACTS.WETH.address, // Selected token as output
+          Math.floor(amount * 1e6) // USDC has 6 decimals
+        );
+        
+        await waitForTransaction(txHash);
+        await fetchWalletBalances();
+        
+        const receiveAmount = amount / selectedBuyCoin.price;
+        alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
+        
+        // Reset form
+        document.getElementById('buyAmount').value = '';
+        calculateBuyTotal();
+        
+      } catch (error) {
+        console.error('Buy transaction failed:', error);
+        alert('Transaction failed: ' + error.message);
+      } finally {
+        const buyBtn = document.getElementById('buyBtn');
+        buyBtn.textContent = 'Buy Now';
+        buyBtn.disabled = false;
+      }
+    }
+
+    async function executeSell() {
+      if (!walletState.connected) {
+        walletModal.classList.add('open');
+        return;
+      }
+      
+      if (!selectedSellCoin) {
+        alert('Please select a cryptocurrency to sell.');
+        return;
+      }
+      
+      const amount = parseFloat(document.getElementById('sellAmount').value);
+      if (!amount || amount <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+      
+      const currentBalance = walletState.balances[selectedSellCoin.symbol] || 0;
+      if (amount > currentBalance) {
+        alert(`Insufficient balance. You have ${currentBalance.toFixed(6)} ${selectedSellCoin.symbol}.`);
+        return;
+      }
+      
+      try {
+        const sellBtn = document.getElementById('sellBtn');
+        sellBtn.textContent = 'Processing...';
+        sellBtn.disabled = true;
+        
+        // Execute real swap using Relay.link (hidden)
+        const tokenInfo = TOKEN_CONTRACTS[selectedSellCoin.symbol] || { decimals: 18 };
+        const txHash = await executeRealSwap(
+          tokenInfo.address || TOKEN_CONTRACTS.WETH.address, // Selected token as input
+          TOKEN_CONTRACTS.USDC.address, // USDC as output
+          Math.floor(amount * Math.pow(10, tokenInfo.decimals))
+        );
+        
+        await waitForTransaction(txHash);
+        await fetchWalletBalances();
+        
+        const receiveAmount = amount * selectedSellCoin.price;
+        alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
+        
+        // Reset form
+        document.getElementById('sellAmount').value = '';
+        calculateSellTotal();
+        
+      } catch (error) {
+        console.error('Sell transaction failed:', error);
+        alert('Transaction failed: ' + error.message);
+      } finally {
+        const sellBtn = document.getElementById('sellBtn');
+        sellBtn.textContent = 'Sell Now';
+        sellBtn.disabled = false;
+      }
+    }
+
+    // Close coin lists when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.coin-selector')) {
+        document.querySelectorAll('.coin-list').forEach(list => list.classList.remove('open'));
+      }
+    });
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
-      initializeCoinLists();
-      setInterval(initializeCoinLists, 30000); // Refresh prices every 30 seconds
-      
-      // Add event listeners for buy/sell buttons
-      document.getElementById('buyBtn').addEventListener('click', executeBuy);
-      document.getElementById('sellBtn').addEventListener('click', executeSell);
-      
-      // Add event listeners for amount inputs
-      document.getElementById('buyAmount').addEventListener('input', calculateBuyTotal);
-      document.getElementById('sellAmount').addEventListener('input', calculateSellTotal);
-      
-      // Add event listeners for search inputs
-      document.getElementById('buySearchInput').addEventListener('input', () => searchCoins('buy'));
-      document.getElementById('sellSearchInput').addEventListener('input', () => searchCoins('sell'));
+      loadWalletState();
+      initializeCoins();
+      setInterval(initializeCoins, 30000); // Refresh prices every 30 seconds
     });
   </script>
 </body>
