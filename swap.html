@@ -262,42 +262,323 @@
     </div>
   </div>
 
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
   <script>
-    // Wallet state management
-    let walletState = {
-      connected: false,
-      address: '',
+    // Global state
+    let appState = {
       provider: null,
+      signer: null,
+      address: null,
+      connected: false,
       balances: {}
     };
 
-    // Load wallet state from localStorage on page load
-    function loadWalletState() {
-      try {
-        const saved = localStorage.getItem('cryptoPortfolio_wallet');
-        if (saved) {
-          const state = JSON.parse(saved);
-          walletState = { ...walletState, ...state };
-          if (walletState.connected && walletState.address) {
-            updateWalletUI();
-            fetchWalletBalances();
+    // Contract addresses and ABIs
+    const UNISWAP_ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
+    const UNISWAP_ROUTER_ABI = [
+      "function WETH() external pure returns (address)",
+      "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
+      "function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts)"
+    ];
+
+    const ERC20_ABI = [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function approve(address spender, uint256 amount) returns (bool)",
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function symbol() view returns (string)"
+    ];
+
+    const TOKEN_CONTRACTS = {
+      USDC: { address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6, symbol: 'USDC' },
+      USDT: { address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6, symbol: 'USDT' },
+      WETH: { address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', decimals: 18, symbol: 'WETH' },
+      WBTC: { address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8, symbol: 'WBTC' },
+      ETH: { address: null, decimals: 18, symbol: 'ETH' }
+    };
+
+    // Initialize provider on page load
+    function initializeProvider() {
+      console.log('Initializing provider...');
+      
+      if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask detected');
+        appState.provider = new ethers.providers.Web3Provider(window.ethereum);
+        console.log('Provider created:', appState.provider);
+        
+        // Check if already connected
+        window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+          if (accounts.length > 0) {
+            console.log('Already connected to account:', accounts[0]);
+            connectWallet();
           }
-        }
-      } catch (error) {
-        console.error('Error loading wallet state:', error);
+        });
+      } else {
+        console.error('MetaMask not detected');
+        alert('Please install MetaMask to use this swap feature');
       }
     }
 
-    // Save wallet state to localStorage
-    function saveWalletState() {
+    // Reusable connect wallet function
+    async function connectWallet() {
       try {
-        localStorage.setItem('cryptoPortfolio_wallet', JSON.stringify({
-          connected: walletState.connected,
-          address: walletState.address,
-          timestamp: Date.now()
-        }));
+        console.log('Connecting wallet...');
+        
+        if (!appState.provider) {
+          throw new Error('Provider not initialized');
+        }
+
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        console.log('Accounts received:', accounts);
+        
+        if (accounts.length === 0) {
+          throw new Error('No accounts found');
+        }
+
+        // Get signer
+        appState.signer = appState.provider.getSigner();
+        console.log('Signer created:', appState.signer);
+        
+        // Get address
+        appState.address = accounts[0];
+        console.log('Address set:', appState.address);
+        
+        // Get network
+        const network = await appState.provider.getNetwork();
+        console.log('Network:', network);
+        
+        if (network.chainId !== 1) {
+          alert('Please switch to Ethereum Mainnet');
+          return;
+        }
+        
+        appState.connected = true;
+        updateWalletUI();
+        await fetchWalletBalances();
+        
+        // Set up event listeners
+        window.ethereum.on('accountsChanged', (accounts) => {
+          console.log('Accounts changed:', accounts);
+          if (accounts.length === 0) {
+            disconnectWallet();
+          } else {
+            appState.address = accounts[0];
+            updateWalletUI();
+            fetchWalletBalances();
+          }
+        });
+
+        window.ethereum.on('chainChanged', () => {
+          console.log('Chain changed, reloading...');
+          window.location.reload();
+        });
+
+        console.log('Wallet connected successfully');
+        
       } catch (error) {
-        console.error('Error saving wallet state:', error);
+        console.error('Wallet connection error:', error);
+        alert('Failed to connect wallet: ' + error.message);
+      }
+    }
+
+    // Disconnect wallet
+    function disconnectWallet() {
+      console.log('Disconnecting wallet...');
+      appState = {
+        provider: appState.provider,
+        signer: null,
+        address: null,
+        connected: false,
+        balances: {}
+      };
+      updateWalletUI();
+    }
+
+    // Update wallet UI
+    function updateWalletUI() {
+      if (appState.connected) {
+        navConnectBtn.textContent = appState.address.slice(0, 6) + '...' + appState.address.slice(-4);
+        navConnectBtn.classList.add('connected');
+        walletInfo.style.display = 'block';
+        walletAddress.textContent = 'Connected: ' + appState.address;
+        
+        document.getElementById('buyBtn').textContent = 'Buy Now';
+        document.getElementById('sellBtn').textContent = 'Sell Now';
+        
+        updateBalanceDisplay();
+      } else {
+        navConnectBtn.textContent = 'Connect Wallet';
+        navConnectBtn.classList.remove('connected');
+        walletInfo.style.display = 'none';
+        
+        document.getElementById('buyBtn').textContent = 'Connect Wallet to Buy';
+        document.getElementById('sellBtn').textContent = 'Connect Wallet to Sell';
+        
+        document.getElementById('buyBalance').textContent = '$0.00';
+        document.getElementById('sellHoldings').textContent = 'Connect wallet to see';
+      }
+    }
+
+    // Fetch wallet balances
+    async function fetchWalletBalances() {
+      if (!appState.connected || !appState.signer) {
+        console.log('Cannot fetch balances - not connected');
+        return;
+      }
+
+      try {
+        console.log('Fetching wallet balances...');
+        
+        // Get ETH balance
+        const ethBalance = await appState.provider.getBalance(appState.address);
+        appState.balances.ETH = parseFloat(ethers.utils.formatEther(ethBalance));
+        console.log('ETH balance:', appState.balances.ETH);
+
+        // Get ERC20 token balances
+        for (const [symbol, tokenInfo] of Object.entries(TOKEN_CONTRACTS)) {
+          if (symbol === 'ETH' || !tokenInfo.address) continue;
+          
+          try {
+            const tokenContract = new ethers.Contract(tokenInfo.address, ERC20_ABI, appState.signer);
+            const balance = await tokenContract.balanceOf(appState.address);
+            appState.balances[symbol] = parseFloat(ethers.utils.formatUnits(balance, tokenInfo.decimals));
+            console.log(`${symbol} balance:`, appState.balances[symbol]);
+          } catch (error) {
+            console.error(`Error fetching ${symbol} balance:`, error);
+            appState.balances[symbol] = 0;
+          }
+        }
+        
+        updateBalanceDisplay();
+      } catch (error) {
+        console.error('Error fetching wallet balances:', error);
+      }
+    }
+
+    // Update balance display
+    function updateBalanceDisplay() {
+      if (!appState.connected) return;
+      
+      // Update buy balance (USDC + USDT)
+      const usdcBalance = appState.balances.USDC || 0;
+      const usdtBalance = appState.balances.USDT || 0;
+      const totalStablecoins = usdcBalance + usdtBalance;
+      document.getElementById('buyBalance').textContent = `$${totalStablecoins.toFixed(2)}`;
+
+      // Update sell holdings
+      const holdings = Object.entries(appState.balances)
+        .filter(([symbol, balance]) => balance > 0 && symbol !== 'USDC' && symbol !== 'USDT')
+        .map(([symbol, balance]) => `${balance.toFixed(4)} ${symbol}`)
+        .join(', ') || 'No holdings';
+      
+      document.getElementById('sellHoldings').textContent = holdings;
+    }
+
+    // Approve token
+    async function approveToken(tokenAddress, spenderAddress, amount) {
+      try {
+        console.log('Approving token...', { tokenAddress, spenderAddress, amount });
+        
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, appState.signer);
+        
+        // Check current allowance
+        const currentAllowance = await tokenContract.allowance(appState.address, spenderAddress);
+        console.log('Current allowance:', ethers.utils.formatUnits(currentAllowance, 18));
+        
+        if (currentAllowance.gte(amount)) {
+          console.log('Token already approved');
+          return true;
+        }
+        
+        // Approve token
+        const approveTx = await tokenContract.approve(spenderAddress, amount);
+        console.log('Approval transaction sent:', approveTx.hash);
+        
+        // Wait for confirmation
+        const receipt = await approveTx.wait();
+        console.log('Approval confirmed:', receipt);
+        
+        return true;
+      } catch (error) {
+        console.error('Token approval error:', error);
+        throw error;
+      }
+    }
+
+    // Execute swap using Uniswap
+    async function executeSwap(tokenIn, tokenOut, amountIn, isBuy) {
+      try {
+        console.log('Executing swap...', { tokenIn, tokenOut, amountIn, isBuy });
+        
+        if (!appState.connected || !appState.signer) {
+          throw new Error('Wallet not connected');
+        }
+
+        const router = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, appState.signer);
+        
+        // Create swap path
+        const path = [tokenIn, tokenOut];
+        console.log('Swap path:', path);
+        
+        // Get expected output amount
+        const amounts = await router.getAmountsOut(amountIn, path);
+        const expectedOutput = amounts[amounts.length - 1];
+        console.log('Expected output:', ethers.utils.formatUnits(expectedOutput, 18));
+        
+        // Set minimum output (2% slippage)
+        const amountOutMin = expectedOutput.mul(98).div(100);
+        
+        // Approve token if not ETH
+        if (tokenIn !== null) {
+          console.log('Approving input token...');
+          await approveToken(tokenIn, UNISWAP_ROUTER_ADDRESS, amountIn);
+        }
+        
+        // Execute swap
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
+        
+        let swapTx;
+        if (tokenIn === null) {
+          // ETH to token
+          swapTx = await router.swapExactETHForTokens(
+            amountOutMin,
+            path,
+            appState.address,
+            deadline,
+            { value: amountIn }
+          );
+        } else if (tokenOut === null) {
+          // Token to ETH
+          swapTx = await router.swapExactTokensForETH(
+            amountIn,
+            amountOutMin,
+            path,
+            appState.address,
+            deadline
+          );
+        } else {
+          // Token to token
+          swapTx = await router.swapExactTokensForTokens(
+            amountIn,
+            amountOutMin,
+            path,
+            appState.address,
+            deadline
+          );
+        }
+        
+        console.log('Swap transaction sent:', swapTx.hash);
+        
+        // Wait for confirmation
+        const receipt = await swapTx.wait();
+        console.log('Swap confirmed:', receipt);
+        
+        return receipt;
+      } catch (error) {
+        console.error('Swap execution error:', error);
+        throw error;
       }
     }
 
@@ -318,190 +599,19 @@
     const walletAddress = document.getElementById('walletAddress');
 
     document.getElementById('closeWalletModal').addEventListener('click', () => walletModal.classList.remove('open'));
-    navConnectBtn.addEventListener('click', () => walletModal.classList.add('open'));
-
-    // Update wallet UI based on connection state
-    function updateWalletUI() {
-      if (walletState.connected) {
-        navConnectBtn.textContent = walletState.address.slice(0, 6) + '...' + walletState.address.slice(-4);
-        navConnectBtn.classList.add('connected');
-        walletInfo.style.display = 'block';
-        walletAddress.textContent = 'Connected: ' + walletState.address;
-        
-        document.getElementById('buyBtn').textContent = 'Buy Now';
-        document.getElementById('sellBtn').textContent = 'Sell Now';
-        
-        updateBalanceDisplay();
-      } else {
-        navConnectBtn.textContent = 'Connect Wallet';
-        navConnectBtn.classList.remove('connected');
-        walletInfo.style.display = 'none';
-        
-        document.getElementById('buyBtn').textContent = 'Connect Wallet to Buy';
-        document.getElementById('sellBtn').textContent = 'Connect Wallet to Sell';
-        
-        document.getElementById('buyBalance').textContent = '$0.00';
-        document.getElementById('sellHoldings').textContent = 'Connect wallet to see';
+    navConnectBtn.addEventListener('click', () => {
+      if (!appState.connected) {
+        walletModal.classList.add('open');
       }
-    }
-
-    // Update balance display
-    function updateBalanceDisplay() {
-      if (!walletState.connected) return;
-      
-      // Update buy balance (USDC + USDT)
-      const usdcBalance = walletState.balances.USDC || 0;
-      const usdtBalance = walletState.balances.USDT || 0;
-      const totalStablecoins = usdcBalance + usdtBalance;
-      document.getElementById('buyBalance').textContent = `$${totalStablecoins.toFixed(2)}`;
-
-      // Update sell holdings
-      const holdings = Object.entries(walletState.balances)
-        .filter(([symbol, balance]) => balance > 0 && symbol !== 'USDC' && symbol !== 'USDT')
-        .map(([symbol, balance]) => `${balance.toFixed(4)} ${symbol}`)
-        .join(', ') || 'No holdings';
-      
-      document.getElementById('sellHoldings').textContent = holdings;
-    }
-
-    // Disconnect wallet
-    function disconnectWallet() {
-      walletState = { connected: false, address: '', provider: null, balances: {} };
-      localStorage.removeItem('cryptoPortfolio_wallet');
-      updateWalletUI();
-    }
-
-    // Wallet connection functions
-    function allEvmProviders() {
-      if (!window.ethereum) return [];
-      return Array.isArray(window.ethereum.providers) ? window.ethereum.providers : [window.ethereum];
-    }
-
-    function openMobileWallet(walletKey) {
-      const currentUrl = encodeURIComponent(window.location.href);
-      if (walletKey === 'metamask') window.open(`https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`, '_blank');
-      if (walletKey === 'phantom') window.open(`https://phantom.app/ul/browse/${currentUrl}?ref=${currentUrl}`, '_blank');
-      if (walletKey === 'okx') window.open('https://www.okx.com/web3', '_blank');
-      if (walletKey === 'rabby') window.open('https://rabby.io/', '_blank');
-    }
-
-    async function connectWallet(walletKey) {
-      try {
-        if (walletKey === 'phantom' && window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) {
-          const resp = await window.phantom.solana.connect();
-          walletState.connected = true;
-          walletState.address = resp.publicKey.toString();
-          walletState.provider = window.phantom.solana;
-          saveWalletState();
-          updateWalletUI();
-          walletStatus.textContent = 'Connected Phantom: ' + resp.publicKey.toString();
-          walletModal.classList.remove('open');
-          return;
-        }
-
-        const providers = allEvmProviders();
-        let provider = providers[0];
-        if (walletKey === 'metamask') provider = providers.find((p) => p.isMetaMask) || provider;
-        if (walletKey === 'rabby') provider = providers.find((p) => p.isRabby) || provider;
-        if (walletKey === 'okx') provider = providers.find((p) => p.isOkxWallet || p.isOKXWallet || p.isOkexWallet) || provider;
-        if (!provider) {
-          walletStatus.textContent = 'Extension not detected. Opening mobile/app link...';
-          openMobileWallet(walletKey);
-          return;
-        }
-        
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        const address = accounts[0] || '';
-        if (address) {
-          walletState.connected = true;
-          walletState.address = address;
-          walletState.provider = provider;
-          saveWalletState();
-          updateWalletUI();
-          walletStatus.textContent = 'Connected: ' + address;
-          walletModal.classList.remove('open');
-          
-          // Set up event listeners
-          provider.on('accountsChanged', (accounts) => {
-            if (accounts.length === 0) {
-              disconnectWallet();
-            } else {
-              walletState.address = accounts[0];
-              saveWalletState();
-              updateWalletUI();
-            }
-          });
-          
-          provider.on('chainChanged', () => {
-            fetchWalletBalances();
-          });
-          
-          fetchWalletBalances();
-        }
-      } catch (e) {
-        walletStatus.textContent = 'Wallet connection failed.';
-      }
-    }
-
-    document.querySelectorAll('.wallet-option').forEach((btn) => {
-      btn.addEventListener('click', () => connectWallet(btn.dataset.wallet));
     });
 
-    // Token contracts for balance fetching
-    const TOKEN_CONTRACTS = {
-      USDC: { address: '0xA0b86a33E6441e6c8C8d8d8d8d8d8d8d8d8d8d8d8d8d8', decimals: 6 },
-      USDT: { address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6 },
-      WETH: { address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', decimals: 18 },
-      WBTC: { address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', decimals: 8 },
-      ETH: { address: null, decimals: 18 }
-    };
-
-    // Fetch real wallet balances
-    async function fetchWalletBalances() {
-      if (!walletState.connected || !walletState.provider) return;
-      
-      try {
-        // Get ETH balance
-        const ethBalance = await walletState.provider.request({
-          method: 'eth_getBalance',
-          params: [walletState.address, 'latest']
-        });
-        walletState.balances.ETH = parseFloat(ethBalance || '0') / 1e18;
-
-        // Get ERC20 token balances
-        for (const [symbol, tokenInfo] of Object.entries(TOKEN_CONTRACTS)) {
-          if (symbol === 'ETH' || !tokenInfo.address) continue;
-          
-          try {
-            const balanceData = await walletState.provider.request({
-              method: 'eth_call',
-              params: [{
-                to: tokenInfo.address,
-                data: '0x70a08231' + walletState.address.slice(2).padStart(64, '0')
-              }, 'latest']
-            });
-            
-            const balance = balanceData || '0x0';
-            const decimals = tokenInfo.decimals;
-            walletState.balances[symbol] = parseFloat(balance) / Math.pow(10, decimals);
-          } catch (error) {
-            console.error(`Error fetching ${symbol} balance:`, error);
-            walletState.balances[symbol] = 0;
-          }
-        }
-        
-        updateBalanceDisplay();
-      } catch (error) {
-        console.error('Error fetching wallet balances:', error);
-      }
-    }
-
-    // Relay.link integration (hidden)
-    const RELAY_CONFIG = {
-      baseUrl: 'https://api.relay.link',
-      apiKey: 'hidden_key',
-      supportedChains: ['ethereum', 'polygon', 'bsc', 'arbitrum']
-    };
+    // Wallet option handlers
+    document.querySelectorAll('.wallet-option').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        walletModal.classList.remove('open');
+        connectWallet();
+      });
+    });
 
     // Fetch real-time prices from CoinGecko
     async function fetchRealTimePrices() {
@@ -618,133 +728,47 @@
       calculateSellTotal();
     }
 
-    // Real swap execution using Relay.link (hidden integration)
-    async function executeRealSwap(tokenIn, tokenOut, amountIn) {
-      try {
-        const chainId = await walletState.provider.request({ method: 'eth_chainId' });
-        
-        // Get quote from Relay.link (hidden)
-        const quoteResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/quotes`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
-          },
-          body: JSON.stringify({
-            chainId: parseInt(chainId),
-            sellToken: tokenIn,
-            buyToken: tokenOut,
-            sellAmount: amountIn.toString(),
-            slippagePercentage: 0.5,
-            userWallet: walletState.address
-          })
-        });
-
-        const quote = await quoteResponse.json();
-
-        // Get transaction data from Relay.link (hidden)
-        const transactionResponse = await fetch(`${RELAY_CONFIG.baseUrl}/v1/transactions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RELAY_CONFIG.apiKey}`
-          },
-          body: JSON.stringify({
-            chainId: parseInt(chainId),
-            sellToken: tokenIn,
-            buyToken: tokenOut,
-            sellAmount: amountIn.toString(),
-            slippagePercentage: 0.5,
-            userWallet: walletState.address,
-            quoteId: quote.quoteId
-          })
-        });
-
-        const transaction = await transactionResponse.json();
-
-        // Execute transaction through wallet
-        const txHash = await walletState.provider.request({
-          method: 'eth_sendTransaction',
-          params: [{
-            to: transaction.to,
-            data: transaction.data,
-            value: transaction.value || '0x0',
-            gas: transaction.gas || '0x5208',
-            gasPrice: transaction.gasPrice || '0x0'
-          }]
-        });
-
-        return txHash;
-      } catch (error) {
-        console.error('Swap execution failed:', error);
-        throw error;
-      }
-    }
-
-    // Wait for transaction confirmation
-    async function waitForTransaction(txHash) {
-      let receipt = null;
-      while (!receipt) {
-        try {
-          receipt = await walletState.provider.request({
-            method: 'eth_getTransactionReceipt',
-            params: [txHash]
-          });
-          
-          if (!receipt) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          }
-        } catch (error) {
-          console.error('Error checking transaction:', error);
-          break;
-        }
-      }
-      
-      if (!receipt || receipt.status === '0x0') {
-        throw new Error('Transaction failed');
-      }
-      
-      return receipt;
-    }
-
+    // Execute buy function
     async function executeBuy() {
-      if (!walletState.connected) {
-        walletModal.classList.add('open');
-        return;
-      }
-      
-      if (!selectedBuyCoin) {
-        alert('Please select a cryptocurrency to buy.');
-        return;
-      }
-      
-      const amount = parseFloat(document.getElementById('buyAmount').value);
-      if (!amount || amount <= 0) {
-        alert('Please enter a valid amount.');
-        return;
-      }
-      
       try {
+        if (!appState.connected) {
+          walletModal.classList.add('open');
+          return;
+        }
+        
+        if (!selectedBuyCoin) {
+          alert('Please select a cryptocurrency to buy.');
+          return;
+        }
+        
+        const amount = parseFloat(document.getElementById('buyAmount').value);
+        if (!amount || amount <= 0) {
+          alert('Please enter a valid amount.');
+          return;
+        }
+        
         const buyBtn = document.getElementById('buyBtn');
         buyBtn.textContent = 'Processing...';
         buyBtn.disabled = true;
         
-        // Execute real swap using Relay.link (hidden)
-        const txHash = await executeRealSwap(
-          TOKEN_CONTRACTS.USDC.address, // USDC as input
-          TOKEN_CONTRACTS[selectedBuyCoin.symbol]?.address || TOKEN_CONTRACTS.WETH.address, // Selected token as output
-          Math.floor(amount * 1e6) // USDC has 6 decimals
-        );
+        // Get token contracts
+        const tokenIn = TOKEN_CONTRACTS.USDC.address; // Buy with USDC
+        const tokenOut = TOKEN_CONTRACTS[selectedBuyCoin.symbol]?.address || null; // Target token
         
-        await waitForTransaction(txHash);
-        await fetchWalletBalances();
+        // Convert amount to wei
+        const amountIn = ethers.utils.parseUnits(amount.toString(), 6); // USDC has 6 decimals
         
-        const receiveAmount = amount / selectedBuyCoin.price;
-        alert(`Successfully bought ${receiveAmount.toFixed(6)} ${selectedBuyCoin.symbol}!\nTransaction: ${txHash}`);
+        console.log('Executing buy swap...', { tokenIn, tokenOut, amountIn: amountIn.toString() });
         
-        // Reset form
+        // Execute swap
+        const receipt = await executeSwap(tokenIn, tokenOut, amountIn, true);
+        
+        alert(`Successfully bought ${selectedBuyCoin.name}!\nTransaction: ${receipt.transactionHash}`);
+        
+        // Reset form and refresh balances
         document.getElementById('buyAmount').value = '';
         calculateBuyTotal();
+        await fetchWalletBalances();
         
       } catch (error) {
         console.error('Buy transaction failed:', error);
@@ -756,51 +780,54 @@
       }
     }
 
+    // Execute sell function
     async function executeSell() {
-      if (!walletState.connected) {
-        walletModal.classList.add('open');
-        return;
-      }
-      
-      if (!selectedSellCoin) {
-        alert('Please select a cryptocurrency to sell.');
-        return;
-      }
-      
-      const amount = parseFloat(document.getElementById('sellAmount').value);
-      if (!amount || amount <= 0) {
-        alert('Please enter a valid amount.');
-        return;
-      }
-      
-      const currentBalance = walletState.balances[selectedSellCoin.symbol] || 0;
-      if (amount > currentBalance) {
-        alert(`Insufficient balance. You have ${currentBalance.toFixed(6)} ${selectedSellCoin.symbol}.`);
-        return;
-      }
-      
       try {
+        if (!appState.connected) {
+          walletModal.classList.add('open');
+          return;
+        }
+        
+        if (!selectedSellCoin) {
+          alert('Please select a cryptocurrency to sell.');
+          return;
+        }
+        
+        const amount = parseFloat(document.getElementById('sellAmount').value);
+        if (!amount || amount <= 0) {
+          alert('Please enter a valid amount.');
+          return;
+        }
+        
+        const currentBalance = appState.balances[selectedSellCoin.symbol] || 0;
+        if (amount > currentBalance) {
+          alert(`Insufficient balance. You have ${currentBalance.toFixed(6)} ${selectedSellCoin.symbol}.`);
+          return;
+        }
+        
         const sellBtn = document.getElementById('sellBtn');
         sellBtn.textContent = 'Processing...';
         sellBtn.disabled = true;
         
-        // Execute real swap using Relay.link (hidden)
+        // Get token contracts
+        const tokenIn = TOKEN_CONTRACTS[selectedSellCoin.symbol]?.address || null; // Source token
+        const tokenOut = TOKEN_CONTRACTS.USDC.address; // Get USDC
+        
+        // Convert amount to wei
         const tokenInfo = TOKEN_CONTRACTS[selectedSellCoin.symbol] || { decimals: 18 };
-        const txHash = await executeRealSwap(
-          tokenInfo.address || TOKEN_CONTRACTS.WETH.address, // Selected token as input
-          TOKEN_CONTRACTS.USDC.address, // USDC as output
-          Math.floor(amount * Math.pow(10, tokenInfo.decimals))
-        );
+        const amountIn = ethers.utils.parseUnits(amount.toString(), tokenInfo.decimals);
         
-        await waitForTransaction(txHash);
-        await fetchWalletBalances();
+        console.log('Executing sell swap...', { tokenIn, tokenOut, amountIn: amountIn.toString() });
         
-        const receiveAmount = amount * selectedSellCoin.price;
-        alert(`Successfully sold ${amount} ${selectedSellCoin.symbol} for $${receiveAmount.toFixed(2)}!\nTransaction: ${txHash}`);
+        // Execute swap
+        const receipt = await executeSwap(tokenIn, tokenOut, amountIn, false);
         
-        // Reset form
+        alert(`Successfully sold ${selectedSellCoin.name}!\nTransaction: ${receipt.transactionHash}`);
+        
+        // Reset form and refresh balances
         document.getElementById('sellAmount').value = '';
         calculateSellTotal();
+        await fetchWalletBalances();
         
       } catch (error) {
         console.error('Sell transaction failed:', error);
@@ -821,7 +848,8 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
-      loadWalletState();
+      console.log('Initializing app...');
+      initializeProvider();
       initializeCoins();
       setInterval(initializeCoins, 30000); // Refresh prices every 30 seconds
     });
