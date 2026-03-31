@@ -607,8 +607,15 @@
 
     // Wallet option handlers
     document.querySelectorAll('.wallet-option').forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         walletModal.classList.remove('open');
+        
+        // Ensure provider is initialized before connecting
+        if (!appState.provider) {
+          console.log('Provider not initialized, initializing...');
+          await initializeProvider();
+        }
+        
         connectWallet();
       });
     });
@@ -847,11 +854,23 @@
     });
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       console.log('Initializing app...');
-      initializeProvider();
-      initializeCoins();
-      setInterval(initializeCoins, 30000); // Refresh prices every 30 seconds
+      try {
+        await initializeProvider();
+        await initializeCoins();
+        
+        // Set up price refresh
+        setInterval(async () => {
+          try {
+            await initializeCoins();
+          } catch (error) {
+            console.error('Error refreshing prices:', error);
+          }
+        }, 30000); // Refresh prices every 30 seconds
+      } catch (error) {
+        console.error('Error during initialization:', error);
+      }
     });
   </script>
 </body>
