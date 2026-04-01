@@ -3,260 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Where to Buy Crypto in Nigeria - CryptoPortfolio</title>
-  <meta name="description" content="Best platforms to buy Bitcoin, Ethereum, and other cryptocurrencies with Naira in Nigeria. CEX, DEX & P2P comparison.">
+  <title>How to Buy Crypto - Step by Step | CryptoPortfolio</title>
+  <meta name="description" content="Learn how to buy cryptocurrency safely in Nigeria using our Swap or trusted platforms.">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.7;
+      background: #f8f9fa;
       color: #333;
-      background-color: #f8f9fa;
+      line-height: 1.7;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
-    /* Navbar */
     header {
       background: #0f172a;
       color: white;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
     }
-
     nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.3rem 0;
     }
-
-    .logo {
-      font-size: 1.9rem;
-      font-weight: bold;
-      color: #22c55e;
-    }
+    .logo { font-size: 1.95rem; font-weight: bold; color: #22c55e; }
 
     .nav-links {
       display: flex;
       gap: 2rem;
       list-style: none;
     }
-
     .nav-links a {
       color: white;
       text-decoration: none;
       font-weight: 500;
     }
-
-    .nav-links a:hover {
-      color: #22c55e;
-    }
+    .nav-links a:hover { color: #22c55e; }
 
     /* Hero */
     .hero {
-      background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%);
+      background: linear-gradient(135deg, #0f172a, #1e2937);
       color: white;
-      padding: 110px 0 80px;
+      padding: 100px 0 70px;
       text-align: center;
     }
+    .hero h1 { font-size: 3.2rem; margin-bottom: 1rem; }
 
-    .hero h1 {
-      font-size: 3.4rem;
-      margin-bottom: 1rem;
-    }
-
-    .hero p {
-      font-size: 1.35rem;
-      max-width: 780px;
-      margin: 0 auto;
-      opacity: 0.95;
-    }
-
-    /* Section Title */
     .section-title {
-      font-size: 2.5rem;
+      font-size: 2.4rem;
       text-align: center;
       margin: 70px 0 50px;
       color: #0f172a;
     }
 
-    /* Cards Grid */
-    .cards-grid {
+    /* Steps */
+    .steps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 2rem;
     }
 
-    .card {
+    .step-card {
       background: white;
-      border-radius: 16px;
-      padding: 2.2rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
+      border-radius: 20px;
+      padding: 32px 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: transform 0.3s;
     }
+    .step-card:hover { transform: translateY(-10px); }
 
-    .card:hover {
-      transform: translateY(-12px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .card-header img {
-      width: 65px;
-      height: 65px;
-      border-radius: 12px;
-    }
-
-    .card-title {
-      font-size: 1.65rem;
-      font-weight: 600;
-    }
-
-    .badge {
-      background: #22c55e;
-      color: white;
-      font-size: 0.85rem;
-      padding: 5px 14px;
-      border-radius: 30px;
-      display: inline-block;
-      margin-top: 6px;
-    }
-
-    .card p {
-      margin-bottom: 1.5rem;
-      color: #475569;
-    }
-
-    .features-list {
-      list-style: none;
-      margin: 1.5rem 0;
-    }
-
-    .features-list li {
-      padding: 8px 0;
-      position: relative;
-      padding-left: 28px;
-    }
-
-    .features-list li:before {
-      content: "✓";
-      color: #22c55e;
+    .step-number {
+      font-size: 3.5rem;
       font-weight: bold;
-      position: absolute;
-      left: 0;
+      color: #22c55e;
+      opacity: 0.15;
+      margin-bottom: 10px;
+    }
+    .step-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #0f172a;
     }
 
-    /* Warning Box */
-    .warning-box {
-      background: #fef3c7;
-      border-left: 6px solid #f59e0b;
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin: 40px 0;
-    }
-
-    /* Comparison Table */
-    .comparison-section {
-      margin: 80px 0;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-    }
-
-    th {
-      background: #0f172a;
-      color: white;
-      padding: 18px 15px;
-      text-align: left;
-    }
-
-    td {
-      padding: 18px 15px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    tr:hover {
-      background: #f8fafc;
-    }
-
-    .recommended {
+    /* Highlight Box */
+    .highlight {
       background: #f0fdf4;
-      font-weight: 600;
+      border-left: 6px solid #22c55e;
+      padding: 25px;
+      border-radius: 12px;
+      margin: 50px 0;
     }
 
-    /* CTA */
+    /* Tips */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 40px;
+    }
+    .tip-card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+    }
+
     .cta-section {
       background: #0f172a;
       color: white;
-      padding: 100px 0;
+      padding: 90px 0;
       text-align: center;
     }
-
     .cta-btn {
       background: #22c55e;
       color: white;
-      padding: 16px 45px;
+      padding: 16px 40px;
       border-radius: 50px;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 600;
       text-decoration: none;
       display: inline-block;
-      margin-top: 1.5rem;
-      transition: all 0.3s;
     }
 
-    .cta-btn:hover {
-      background: #16a34a;
-      transform: scale(1.05);
-    }
-
-    /* Footer */
     footer {
       background: #0f172a;
       color: white;
       padding: 70px 0 40px;
       text-align: center;
     }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin: 2.5rem 0;
-      flex-wrap: wrap;
-    }
-
     .footer-links a {
       color: #94a3b8;
       text-decoration: none;
-    }
-
-    .footer-links a:hover {
-      color: #22c55e;
+      margin: 0 15px;
     }
   </style>
 </head>
@@ -269,10 +151,10 @@
         <div class="logo">CryptoPortfolio</div>
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
-          <li><a href="swap.html">Swap</a></li>
           <li><a href="trending.html">Trending</a></li>
           <li><a href="how-to-buy.html">How to Buy</a></li>
           <li><a href="where-to-buy.html">Where to Buy</a></li>
+          <li><a href="swap.html">Swap</a></li>
           <li><a href="about.html">About</a></li>
         </ul>
       </nav>
@@ -282,132 +164,75 @@
   <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <h1>Where to Buy Crypto in Nigeria</h1>
-      <p>Best and safest platforms to buy Bitcoin (BTC), Ethereum (ETH), USDT, and other cryptocurrencies with Nigerian Naira in 2026.</p>
+      <h1>How to Buy Crypto in 2026</h1>
+      <p>Simple step-by-step guide for beginners in Nigeria — including our built-in Swap feature.</p>
     </div>
   </section>
 
   <div class="container">
 
-    <!-- Centralized Exchanges -->
-    <h2 class="section-title">Best Centralized Exchanges (CEX)</h2>
-    
-    <div class="cards-grid">
+    <h2 class="section-title">5 Simple Steps to Buy Crypto</h2>
 
-      <!-- Binance -->
-      <div class="card">
-        <div class="card-header">
-          <img src="https://via.placeholder.com/65/FF9900/FFFFFF?text=BN" alt="Binance">
-          <div>
-            <div class="card-title">Binance</div>
-            <span class="badge">Most Recommended</span>
-          </div>
-        </div>
-        <p>The most popular crypto exchange among Nigerians with excellent Naira support through P2P.</p>
-        <ul class="features-list">
-          <li>Fast P2P trading with local banks</li>
-          <li>Low trading fees</li>
-          <li>Huge selection of coins</li>
-          <li>Mobile app available</li>
-          <li>Binance Pay for easy spending</li>
-        </ul>
-        <a href="#" class="cta-btn" style="display:block; text-align:center; width:100%;">Visit Binance</a>
+    <div class="steps-grid">
+
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <h3>Connect Your Wallet</h3>
+        <p>Click the "Connect Wallet" button on our Swap page. This allows you to receive coins directly into your wallet.</p>
       </div>
 
-      <!-- Bybit -->
-      <div class="card">
-        <div class="card-header">
-          <img src="https://via.placeholder.com/65/FF4500/FFFFFF?text=BY" alt="Bybit">
-          <div>
-            <div class="card-title">Bybit</div>
-          </div>
-        </div>
-        <p>Fast-growing exchange loved by Nigerian traders for its speed and reliability.</p>
-        <ul class="features-list">
-          <li>Strong P2P Naira options</li>
-          <li>Competitive fees</li>
-          <li>Good customer support</li>
-          <li>Advanced trading tools</li>
-        </ul>
-        <a href="#" class="cta-btn" style="display:block; text-align:center; width:100%;">Visit Bybit</a>
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <h3>Choose Our Built-in Swap (Easiest)</h3>
+        <p>Go to the <strong>Swap</strong> page, select the coin you want to buy, enter amount, and confirm. It's instant and stays on our site.</p>
       </div>
 
-      <!-- OKX -->
-      <div class="card">
-        <div class="card-header">
-          <img src="https://via.placeholder.com/65/000000/FFFFFF?text=OKX" alt="OKX">
-          <div>
-            <div class="card-title">OKX</div>
-          </div>
-        </div>
-        <p>Reliable platform with multiple payment options popular in Nigeria.</p>
-        <ul class="features-list">
-          <li>Easy Naira deposits</li>
-          <li>Good for beginners</li>
-          <li>High security standards</li>
-        </ul>
-        <a href="#" class="cta-btn" style="display:block; text-align:center; width:100%;">Visit OKX</a>
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <h3>Use Trusted External Platforms</h3>
+        <p>If you prefer, use Binance P2P, Bybit, or OKX. Deposit Naira via bank transfer or P2P and buy your coins.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">04</div>
+        <h3>Complete the Transaction</h3>
+        <p>Double-check the amount and fees. Confirm the swap or purchase. Your coins will appear in your wallet shortly.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">05</div>
+        <h3>Secure Your Crypto</h3>
+        <p>Never leave large amounts on exchanges. Move your coins to a secure wallet (MetaMask, Trust Wallet, etc.).</p>
       </div>
 
     </div>
 
-    <!-- Warning -->
-    <div class="warning-box">
-      <strong>⚠️ Important Safety Tip:</strong> Always start with small amounts when trying a new platform. Enable 2-Factor Authentication (2FA) and never share your seed phrase or private keys with anyone.
+    <!-- Highlight -->
+    <div class="highlight">
+      <strong>✅ Recommended for Beginners:</strong> Use our built-in <strong>Swap</strong> feature. 
+      It's simple, fast, and you don't need to leave this website. Your purchased coins go directly to your connected wallet.
     </div>
 
-    <!-- P2P Section -->
-    <h2 class="section-title">Best P2P Platforms (Direct Naira to Crypto)</h2>
-    <div class="cards-grid">
-      <div class="card">
-        <div class="card-header">
-          <img src="https://via.placeholder.com/65/22c55e/FFFFFF?text=P2P" alt="P2P">
-          <div>
-            <div class="card-title">Binance P2P</div>
-            <span class="badge">Best for Nigerians</span>
-          </div>
-        </div>
-        <p>Buy crypto directly from other users using Opay, Palmpay, Zenith, GTBank, First Bank, and many more. Fast and convenient.</p>
+    <!-- Safety Tips -->
+    <h2 class="section-title">Important Safety Tips</h2>
+
+    <div class="tips-grid">
+      <div class="tip-card">
+        <h3>🔐 Enable 2FA</h3>
+        <p>Always turn on Two-Factor Authentication on your wallet and exchange accounts.</p>
       </div>
-    </div>
-
-    <!-- Comparison Table -->
-    <div class="comparison-section">
-      <h2 class="section-title">Quick Comparison</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Platform</th>
-            <th>Naira Support</th>
-            <th>Fees</th>
-            <th>Beginner Friendly</th>
-            <th>Best For</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="recommended">
-            <td><strong>Binance</strong></td>
-            <td>Excellent (P2P + Card)</td>
-            <td>Low</td>
-            <td>★★★★☆</td>
-            <td>Overall Use</td>
-          </tr>
-          <tr>
-            <td>Bybit</td>
-            <td>Very Good</td>
-            <td>Low</td>
-            <td>★★★★☆</td>
-            <td>Trading</td>
-          </tr>
-          <tr>
-            <td>OKX</td>
-            <td>Good</td>
-            <td>Low to Medium</td>
-            <td>★★★☆☆</td>
-            <td>Variety of Coins</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tip-card">
+        <h3>💰 Start Small</h3>
+        <p>Begin with small amounts until you are comfortable with the process.</p>
+      </div>
+      <div class="tip-card">
+        <h3>🚫 Never Share Keys</h3>
+        <p>Never share your seed phrase or private keys with anyone — not even support.</p>
+      </div>
+      <div class="tip-card">
+        <h3>🔍 Do Your Own Research</h3>
+        <p>Understand the coin you're buying. Check its use case and market reputation.</p>
+      </div>
     </div>
 
   </div>
@@ -416,28 +241,27 @@
   <section class="cta-section">
     <div class="container">
       <h2>Ready to Buy Your First Crypto?</h2>
-      <p style="font-size: 1.3rem; max-width: 650px; margin: 0 auto 2rem;">
-        Follow our complete beginner guide and start safely today.
+      <p style="font-size: 1.3rem; max-width: 650px; margin: 20px auto;">
+        The easiest way is to use our on-site Swap feature.
       </p>
-      <a href="how-to-buy.html" class="cta-btn">Read How to Buy Crypto Step by Step →</a>
+      <a href="swap.html" class="cta-btn">Go to Swap Now →</a>
     </div>
   </section>
 
   <!-- Footer -->
   <footer>
     <div class="container">
-      <p style="font-size: 1.6rem; margin-bottom: 1rem; color: #22c55e;">CryptoPortfolio</p>
+      <p style="font-size:1.6rem; margin-bottom:1rem;">CryptoPortfolio</p>
       <div class="footer-links">
         <a href="index.html">Home</a>
-        <a href="swap.html">Swap</a>
-        <a href="trending.html">Trending Coins</a>
+        <a href="trending.html">Trending</a>
         <a href="how-to-buy.html">How to Buy</a>
         <a href="where-to-buy.html">Where to Buy</a>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="about.html">About Me</a>
+        <a href="swap.html">Swap</a>
+        <a href="about.html">About</a>
       </div>
-      <p style="margin-top: 3rem; color: #64748b;">
-        &copy; 2026 Franklin • Port Harcourt, Rivers State, Nigeria
+      <p style="margin-top:2.5rem; color:#64748b;">
+        © 2026 Franklin • Port Harcourt, Rivers State, Nigeria
       </p>
     </div>
   </footer>
