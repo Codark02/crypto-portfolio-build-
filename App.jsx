@@ -1,5 +1,5 @@
 import React from 'react';
-import CryptoSwap from './swap';
+import CryptoSwap from './swap-fixed';
 
 function App() {
   return (
